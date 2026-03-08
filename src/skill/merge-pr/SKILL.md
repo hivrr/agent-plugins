@@ -13,9 +13,11 @@ Before starting: read this entire skill, then create a focused todo list, then e
 
 ---
 
-## Phase 1 — Load Core Philosophy
+## Phase 1 — Load Core Philosophy and Memory
 
 Load the `core` skill to internalize project values: quality gates, git safety, and task completion standards. These principles govern every decision you make throughout this workflow.
+
+Load memory: if `.ai/memory/MANIFEST.md` exists, read it. Pick any entries relevant to this PR's domain and read those files. Hold this as `loaded_memory`. If no MANIFEST exists, skip silently.
 
 ---
 

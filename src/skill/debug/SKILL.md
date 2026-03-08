@@ -13,9 +13,11 @@ Before starting: read this entire skill, then create a focused todo list, then e
 
 ---
 
-## Phase 1 — Load Core Philosophy
+## Phase 1 — Load Core Philosophy and Memory
 
 Load the `core` skill to internalize project values. These principles guide how you investigate and what you consider worth flagging.
+
+Load memory: if `.ai/memory/MANIFEST.md` exists, read it. Pick entries relevant to the problem area — known bugs, architectural context, prior investigations. Read those files. Hold this as `loaded_memory`. If no MANIFEST exists, skip silently.
 
 ---
 
@@ -158,7 +160,9 @@ Produce a structured diagnostic report:
 
 ---
 
-## Phase 8 — Done
+## Phase 8 — Save Memory and Done
+
+Save memory: if the diagnosis revealed something worth preserving — a non-obvious root cause pattern, an architectural gap, a debugging approach that worked — write a context entry to `.ai/memory/` using the memory skill conventions and update `MANIFEST.md`. Then commit: `git add .ai/memory/ && git commit -m "chore: record debug findings in memory"`. If nothing significant emerged, skip.
 
 Display the report. Then offer:
 - "Create a GitHub issue from this diagnosis" — runs `gh issue create` with the report as the body

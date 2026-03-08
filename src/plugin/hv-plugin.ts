@@ -19,6 +19,8 @@ import auditTechDebtSkillContent from "../skill/audit-tech-debt/SKILL.md" with {
 import auditPerformanceSkillContent from "../skill/audit-performance/SKILL.md" with { type: "text" }
 import debugSkillContent from "../skill/debug/SKILL.md" with { type: "text" }
 import waveSkillContent from "../skill/wave/SKILL.md" with { type: "text" }
+import memoryCommandContent from "../command/memory.md" with { type: "text" }
+import memorySkillContent from "../skill/memory/SKILL.md" with { type: "text" }
 
 const CONFIG_DIR = path.join(os.homedir(), ".config", "opencode")
 
@@ -48,6 +50,7 @@ async function install(client: Parameters<Plugin>[0]["client"]): Promise<void> {
     { dir: path.join(CONFIG_DIR, "commands"), name: "merge-pr.md", content: mergePrCommandContent },
     { dir: path.join(CONFIG_DIR, "commands"), name: "audit.md", content: auditCommandContent },
     { dir: path.join(CONFIG_DIR, "commands"), name: "debug.md", content: debugCommandContent },
+    { dir: path.join(CONFIG_DIR, "commands"), name: "memory.md", content: memoryCommandContent },
     // Skills
     { dir: path.join(CONFIG_DIR, "skills", "core"), name: "SKILL.md", content: coreSkillContent },
     { dir: path.join(CONFIG_DIR, "skills", "work-issue"), name: "SKILL.md", content: workIssueSkillContent },
@@ -60,6 +63,7 @@ async function install(client: Parameters<Plugin>[0]["client"]): Promise<void> {
     { dir: path.join(CONFIG_DIR, "skills", "audit-performance"), name: "SKILL.md", content: auditPerformanceSkillContent },
     { dir: path.join(CONFIG_DIR, "skills", "debug"), name: "SKILL.md", content: debugSkillContent },
     { dir: path.join(CONFIG_DIR, "skills", "wave"), name: "SKILL.md", content: waveSkillContent },
+    { dir: path.join(CONFIG_DIR, "skills", "memory"), name: "SKILL.md", content: memorySkillContent },
   ]
 
   for (const { dir, name, content } of targets) {

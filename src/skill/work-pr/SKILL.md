@@ -15,9 +15,11 @@ Before starting: read this entire skill, then create a focused todo list, then e
 
 ---
 
-## Phase 1 — Load Core Philosophy
+## Phase 1 — Load Core Philosophy and Memory
 
 Load the `core` skill to internalize project values: quality gates, git safety, and task completion standards. These principles govern every decision you make throughout this workflow.
+
+Load memory: if `.ai/memory/MANIFEST.md` exists, read it. Based on the PR's focus area and feedback topics, pick the 3–7 most relevant entries and read those files. Hold this as `loaded_memory`. If no MANIFEST exists, skip silently.
 
 ---
 
@@ -164,7 +166,9 @@ Wait for their response before continuing.
 
 ## Phase 10 — Commit
 
-Stage all changes: `git add -A`
+Save memory: review what was changed. If addressing this feedback revealed a decision, established a pattern, or surfaced context worth preserving, write it to `.ai/memory/` using the memory skill conventions and update `MANIFEST.md`. If nothing significant emerged, skip.
+
+Stage all changes: `git add -A` — this picks up any memory files written above.
 
 Write a conventional commit message:
 - Format: `{type}({scope}): {description}`

@@ -207,9 +207,11 @@ Before starting: read this entire skill, then create a focused todo list, then e
 
 ---
 
-## Phase 1 \u2014 Load Core Philosophy
+## Phase 1 \u2014 Load Core Philosophy and Memory
 
 Load the \`core\` skill to internalize project values: quality gates, git safety, and task completion standards. These principles govern every decision you make throughout this workflow.
+
+Load memory: if \`.ai/memory/MANIFEST.md\` exists, read it. Based on the current context \u2014 issue keywords, labels, affected areas \u2014 pick the 3\u20137 most relevant entries and read those files. Hold this as \`loaded_memory\`. If no MANIFEST exists, skip silently \u2014 memory will be created when this workflow completes.
 
 ---
 
@@ -378,7 +380,9 @@ Wait for their response before continuing.
 
 ## Phase 11 \u2014 Commit
 
-Stage all changes: \`git add -A\`
+Save memory: review what was built. If any architectural decisions were made, new patterns established, or non-obvious context discovered, write them to \`.ai/memory/\` using the memory skill conventions and update \`MANIFEST.md\`. If nothing significant was discovered, skip.
+
+Stage all changes: \`git add -A\` \u2014 this picks up any memory files written above.
 
 Write a conventional commit message:
 - Format: \`{type}({scope}): {description}\`
@@ -445,9 +449,11 @@ Before starting: read this entire skill, then create a focused todo list, then e
 
 ---
 
-## Phase 1 \u2014 Load Core Philosophy
+## Phase 1 \u2014 Load Core Philosophy and Memory
 
 Load the \`core\` skill to internalize project values: quality gates, git safety, and task completion standards. These principles govern every decision you make throughout this workflow.
+
+Load memory: if \`.ai/memory/MANIFEST.md\` exists, read it. Based on the PR's focus area and feedback topics, pick the 3\u20137 most relevant entries and read those files. Hold this as \`loaded_memory\`. If no MANIFEST exists, skip silently.
 
 ---
 
@@ -594,7 +600,9 @@ Wait for their response before continuing.
 
 ## Phase 10 \u2014 Commit
 
-Stage all changes: \`git add -A\`
+Save memory: review what was changed. If addressing this feedback revealed a decision, established a pattern, or surfaced context worth preserving, write it to \`.ai/memory/\` using the memory skill conventions and update \`MANIFEST.md\`. If nothing significant emerged, skip.
+
+Stage all changes: \`git add -A\` \u2014 this picks up any memory files written above.
 
 Write a conventional commit message:
 - Format: \`{type}({scope}): {description}\`
@@ -669,9 +677,11 @@ Before starting: read this entire skill, then create a focused todo list, then e
 
 ---
 
-## Phase 1 \u2014 Load Core Philosophy
+## Phase 1 \u2014 Load Core Philosophy and Memory
 
 Load the \`core\` skill to internalize project values: quality gates, git safety, and task completion standards. These principles govern every decision you make throughout this workflow.
+
+Load memory: if \`.ai/memory/MANIFEST.md\` exists, read it. Pick any entries relevant to this PR's domain and read those files. Hold this as \`loaded_memory\`. If no MANIFEST exists, skip silently.
 
 ---
 
@@ -873,9 +883,11 @@ Before starting: read this entire skill, then create a focused todo list, then e
 
 ---
 
-## Phase 1 \u2014 Load Core Philosophy
+## Phase 1 \u2014 Load Core Philosophy and Memory
 
 Load the \`core\` skill to internalize project values. These principles guide how you assess severity and prioritize findings.
+
+Load memory: if \`.ai/memory/MANIFEST.md\` exists, read it. Pick any entries relevant to the domain(s) being audited \u2014 prior decisions about security posture, known architectural patterns, past audit findings. Read those files. Hold this as \`loaded_memory\`. If no MANIFEST exists, skip silently.
 
 ---
 
@@ -1016,7 +1028,9 @@ After each successful creation, note the issue number so you can display the ful
 
 ---
 
-## Phase 9 \u2014 Done
+## Phase 9 \u2014 Save Memory and Done
+
+Save memory: if the audit revealed patterns about the codebase worth preserving (recurring issues, architectural context, security posture), write a context entry to \`.ai/memory/\` using the memory skill conventions and update \`MANIFEST.md\`. Then commit those files: \`git add .ai/memory/ && git commit -m "chore: record audit findings in memory"\`. If nothing significant emerged, skip.
 
 Display:
 \`\`\`
@@ -1357,9 +1371,11 @@ Before starting: read this entire skill, then create a focused todo list, then e
 
 ---
 
-## Phase 1 \u2014 Load Core Philosophy
+## Phase 1 \u2014 Load Core Philosophy and Memory
 
 Load the \`core\` skill to internalize project values. These principles guide how you investigate and what you consider worth flagging.
+
+Load memory: if \`.ai/memory/MANIFEST.md\` exists, read it. Pick entries relevant to the problem area \u2014 known bugs, architectural context, prior investigations. Read those files. Hold this as \`loaded_memory\`. If no MANIFEST exists, skip silently.
 
 ---
 
@@ -1502,7 +1518,9 @@ Produce a structured diagnostic report:
 
 ---
 
-## Phase 8 \u2014 Done
+## Phase 8 \u2014 Save Memory and Done
+
+Save memory: if the diagnosis revealed something worth preserving \u2014 a non-obvious root cause pattern, an architectural gap, a debugging approach that worked \u2014 write a context entry to \`.ai/memory/\` using the memory skill conventions and update \`MANIFEST.md\`. Then commit: \`git add .ai/memory/ && git commit -m "chore: record debug findings in memory"\`. If nothing significant emerged, skip.
 
 Display the report. Then offer:
 - "Create a GitHub issue from this diagnosis" \u2014 runs \`gh issue create\` with the report as the body
@@ -1645,6 +1663,213 @@ The work-issue skill handles all of that once, for the entire group together.
 - **Partial group**: if some issues complete before a critical failure, return what completed \u2014 the caller decides whether to commit partial work or discard
 `;
 
+// src/command/memory.md
+var memory_default = `---
+description: View, search, and manage project memory stored in .ai/memory/
+---
+
+Load the \`memory\` skill, then perform the operation indicated by the user's input.
+
+Route as follows:
+
+- No input or \`show\` \u2192 display the full MANIFEST and entry counts
+- \`search {query}\` \u2192 find and display entries matching the query
+- \`add\` \u2192 interactively add a decision, pattern, or context entry
+- \`add decision {text}\` \u2192 write a decision entry directly
+- \`add pattern {text}\` \u2192 write a pattern entry directly
+- \`add context {text}\` \u2192 write a context entry directly
+- \`rebuild\` \u2192 regenerate MANIFEST.md from all files in .ai/memory/
+
+The memory skill has full instructions for each operation.
+`;
+
+// src/skill/memory/SKILL.md
+var SKILL_default12 = `---
+name: memory
+description: Project memory \u2014 decisions, patterns, and context stored in .ai/memory/
+license: MIT
+compatibility: opencode
+---
+
+# Memory
+
+Project memory lives in \`.ai/memory/\` at the repository root. It stores architectural decisions, reusable patterns, and project context across sessions and across teammates. Memory files are committed to the repo \u2014 they are shared knowledge, versioned with the code.
+
+---
+
+## Directory Structure
+
+\`\`\`
+.ai/
+\u2514\u2500\u2500 memory/
+    \u251C\u2500\u2500 MANIFEST.md           \u2190 auto-maintained index (always read this first)
+    \u251C\u2500\u2500 decisions/
+    \u2502   \u2514\u2500\u2500 NNN-slug.md       \u2190 architectural decision records
+    \u251C\u2500\u2500 patterns/
+    \u2502   \u2514\u2500\u2500 name.md           \u2190 reusable code patterns
+    \u2514\u2500\u2500 context/
+        \u2514\u2500\u2500 name.md           \u2190 project context (architecture, setup, dependencies)
+\`\`\`
+
+---
+
+## MANIFEST.md Format
+
+The MANIFEST is the single entry point for all memory. Every stored entry gets one line here \u2014 a reference ID, a title, and a one-sentence summary. Read the MANIFEST first, pick what's relevant, then read only those files.
+
+\`\`\`markdown
+# Memory Manifest
+Last updated: 2026-01-15
+
+## Decisions
+- [Decision-001] Use PostgreSQL \u2014 chose over MongoDB for ACID compliance (2026-01-10)
+- [Decision-002] Feature flags via env vars \u2014 avoid DB-backed flags for simplicity (2026-01-12)
+
+## Patterns
+- [Pattern:error-handling] API error shape \u2014 {error, code, details} across all endpoints (2026-01-08)
+- [Pattern:auth-middleware] JWT verification \u2014 wraps all protected routes (2026-01-10)
+
+## Context
+- [Context:architecture] System overview \u2014 microservices with shared auth service (2026-01-05)
+- [Context:setup] Local development \u2014 requires Docker, Node 20, .env.local (2026-01-05)
+\`\`\`
+
+---
+
+## Reading Memory
+
+At the start of any workflow:
+
+1. Check if \`.ai/memory/MANIFEST.md\` exists. If not, skip \u2014 no memory yet.
+2. Read the MANIFEST.
+3. Based on what you're working on (issue title, keywords, labels, file areas), pick the 3\u20137 most relevant entries.
+4. Read only those files.
+5. Hold the contents as \`loaded_memory\` for reference during the workflow.
+
+Claude does the relevance matching natively \u2014 no scripts or indices needed.
+
+---
+
+## Writing Memory
+
+After implementing something significant, capture what was learned. Write sparingly \u2014 only things that would genuinely help the next session or a teammate. Not every decision needs recording, only those with non-obvious rationale or lasting impact.
+
+### Decision file \u2014 \`decisions/NNN-slug.md\`
+
+Number sequentially. Find the highest existing number in the MANIFEST, use the next one.
+
+\`\`\`markdown
+---
+ref: Decision-003
+title: Use feature flags for gradual rollout
+date: 2026-01-15
+issue: 456
+---
+
+## Context
+We needed to deploy risky features without exposing them to all users at once.
+
+## Decision
+Use environment variable-based feature flags rather than a database-backed system.
+
+## Rationale
+Simpler to reason about. No runtime DB reads per request. Deployments control exposure.
+
+## Consequences
+Requires a redeploy to toggle a flag. Not suitable for per-user targeting.
+\`\`\`
+
+### Pattern file \u2014 \`patterns/name.md\`
+
+Name is a short descriptive slug: \`error-handling\`, \`auth-middleware\`, \`pagination\`.
+
+\`\`\`markdown
+---
+ref: Pattern:error-handling
+title: API error response shape
+date: 2026-01-08
+tags: [api, errors]
+---
+
+All API error responses follow this shape: \`{error: string, code: string, details?: object}\`.
+
+\`\`\`typescript
+return res.status(400).json({
+  error: "Validation failed",
+  code: "VALIDATION_ERROR",
+  details: { field: "email", reason: "invalid format" }
+})
+\`\`\`
+\`\`\`
+
+### Context file \u2014 \`context/name.md\`
+
+For architectural facts, setup instructions, or project background that isn't a decision per se.
+
+\`\`\`markdown
+---
+ref: Context:architecture
+title: System architecture overview
+date: 2026-01-05
+---
+
+## Summary
+Microservices: auth-service, api-gateway, and worker. Shared Postgres DB. Redis for sessions.
+
+## Details
+- Auth service handles all JWT issuance and validation
+- API gateway proxies to services and enforces auth middleware
+- Worker processes background jobs from a Redis queue
+\`\`\`
+
+---
+
+## Updating the MANIFEST
+
+After writing any new file:
+
+1. Read \`MANIFEST.md\`.
+2. Add one line under the correct section: \`- [ref] title \u2014 one-line summary (date)\`
+3. Update the \`Last updated:\` date at the top.
+4. Write the file back.
+
+Keep entries in chronological order within each section. Never delete entries \u2014 if something is superseded, note it in the original file, but keep the MANIFEST line.
+
+---
+
+## Committing Memory Changes
+
+Memory files should travel with the code that generated them.
+
+- In workflows that produce a commit (work-issue, work-pr): write memory files before \`git add -A\` so they're staged automatically.
+- In workflows without a code commit (audit, debug, merge-pr): after writing memory, run \`git add .ai/memory/ && git commit -m "chore: update memory"\` as a standalone commit.
+
+If nothing was written, skip silently.
+
+---
+
+## /memory Command Routing
+
+When invoked directly as \`/memory\`, route based on the user's input:
+
+**No input** or **\`show\`**
+Read \`.ai/memory/MANIFEST.md\` and display it. Show total entry counts by section. If no MANIFEST exists, say "No memory yet \u2014 one will be created when you complete your first workflow."
+
+**\`search {query}\`**
+Read the MANIFEST. Find all entries whose title or summary contains the query terms. Read and display those files in full.
+
+**\`add\`**
+Ask the user: decision, pattern, or context? Then ask for the content. Write the appropriate file, update the MANIFEST, and confirm what was written.
+
+**\`add decision {description}\`** / **\`add pattern {description}\`** / **\`add context {description}\`**
+Write the entry directly using the description provided. Fill in a reasonable title and date. Update the MANIFEST.
+
+**\`rebuild\`**
+Scan all files in \`.ai/memory/decisions/\`, \`.ai/memory/patterns/\`, \`.ai/memory/context/\`. Read each file's frontmatter (\`ref\`, \`title\`, \`date\`) and first non-heading paragraph as the summary. Regenerate \`MANIFEST.md\` from scratch. Display entry count found.
+
+For all write operations: confirm what was written and remind the user to commit \`.ai/memory/\` if it's not part of an active workflow commit.
+`;
+
 // src/plugin/hv-plugin.ts
 var CONFIG_DIR = path.join(os.homedir(), ".config", "opencode");
 async function writeIfChanged(filePath, content) {
@@ -1663,6 +1888,7 @@ async function install(client) {
     { dir: path.join(CONFIG_DIR, "commands"), name: "merge-pr.md", content: merge_pr_default },
     { dir: path.join(CONFIG_DIR, "commands"), name: "audit.md", content: audit_default },
     { dir: path.join(CONFIG_DIR, "commands"), name: "debug.md", content: debug_default },
+    { dir: path.join(CONFIG_DIR, "commands"), name: "memory.md", content: memory_default },
     { dir: path.join(CONFIG_DIR, "skills", "core"), name: "SKILL.md", content: SKILL_default },
     { dir: path.join(CONFIG_DIR, "skills", "work-issue"), name: "SKILL.md", content: SKILL_default2 },
     { dir: path.join(CONFIG_DIR, "skills", "work-pr"), name: "SKILL.md", content: SKILL_default3 },
@@ -1673,7 +1899,8 @@ async function install(client) {
     { dir: path.join(CONFIG_DIR, "skills", "audit-tech-debt"), name: "SKILL.md", content: SKILL_default8 },
     { dir: path.join(CONFIG_DIR, "skills", "audit-performance"), name: "SKILL.md", content: SKILL_default9 },
     { dir: path.join(CONFIG_DIR, "skills", "debug"), name: "SKILL.md", content: SKILL_default10 },
-    { dir: path.join(CONFIG_DIR, "skills", "wave"), name: "SKILL.md", content: SKILL_default11 }
+    { dir: path.join(CONFIG_DIR, "skills", "wave"), name: "SKILL.md", content: SKILL_default11 },
+    { dir: path.join(CONFIG_DIR, "skills", "memory"), name: "SKILL.md", content: SKILL_default12 }
   ];
   for (const { dir, name, content } of targets) {
     await fs.mkdir(dir, { recursive: true });
