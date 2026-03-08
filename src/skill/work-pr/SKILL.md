@@ -42,6 +42,8 @@ Display: `Input: PR #{pr_number} | auto: {auto_mode}`
 
 ## Phase 3 — Get Repo and PR Context
 
+**Check for an interrupted session first:** look for `.ai/session/work-pr-{pr_number}.md`. If it exists, load it as `resume_context` and set `resume_mode = true`. The session file contains the branch, feedback checklist, and progress from a previous run. You will use it to skip completed feedback items and resume from the stopping point.
+
 Do these together:
 
 **Repo info:** Run `git remote get-url origin` and parse the owner and repo name. Store `repo_owner`, `repo_name`.
@@ -102,6 +104,10 @@ For **medium and complex** tasks: before touching any code, write out your plan 
 - Any risks or tradeoffs
 
 For **complex** tasks: look at the existing code context before committing to an approach. Follow existing patterns.
+
+**If `resume_mode = true`:** the feedback plan already exists in `resume_context`. Load it, review which items are already checked `[x]`, and skip to Phase 7 addressing only the remaining `[ ]` items.
+
+**Write the session checkpoint:** once the plan is ready, write `.ai/session/work-pr-{pr_number}.md` using the format defined in the memory skill. Update individual `[ ]` → `[x]` checkboxes in this file as each feedback item is addressed during Phase 7.
 
 Display: `Plan: ready`
 
@@ -206,6 +212,8 @@ Display: `Push: {branch_name} → origin`
 ---
 
 ## Phase 13 — Done
+
+Delete `.ai/session/work-pr-{pr_number}.md` — the workflow completed successfully, the checkpoint is no longer needed.
 
 Display:
 ```

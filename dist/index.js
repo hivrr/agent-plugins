@@ -139,6 +139,26 @@ Examples:
 \`\`\`
 `;
 
+// src/command/memory.md
+var memory_default = `---
+description: View, search, and manage project memory stored in .ai/memory/
+---
+
+Load the \`memory\` skill, then perform the operation indicated by the user's input.
+
+Route as follows:
+
+- No input or \`show\` \u2192 display the full MANIFEST and entry counts
+- \`search {query}\` \u2192 find and display entries matching the query
+- \`add\` \u2192 interactively add a decision, pattern, or context entry
+- \`add decision {text}\` \u2192 write a decision entry directly
+- \`add pattern {text}\` \u2192 write a pattern entry directly
+- \`add context {text}\` \u2192 write a context entry directly
+- \`rebuild\` \u2192 regenerate MANIFEST.md from all files in .ai/memory/
+
+The memory skill has full instructions for each operation.
+`;
+
 // src/skill/core/SKILL.md
 var SKILL_default = `---
 name: core
@@ -230,7 +250,9 @@ Extract:
 - \`inline_context\` \u2014 any text after \`:\` in the input
 - \`auto_mode\` \u2014 true if \`--auto\` is present
 
-Display: \`Input: {issue_numbers} | auto: {auto_mode}\`
+**Check for an interrupted session:** for the first issue number, look for \`.ai/session/work-issue-{number}.md\`. If it exists, load it as \`resume_context\` and set \`resume_mode = true\`. The session file contains the branch, plan, and progress from a previous run that was interrupted (crash, context limit, or manual stop). You will use it in later phases to skip completed work and resume from the exact stopping point.
+
+Display: \`Input: {issue_numbers} | auto: {auto_mode}\` \u2014 append \`| RESUMING\` if \`resume_mode = true\`
 
 ---
 
@@ -315,6 +337,10 @@ For **medium and complex** tasks: before touching any code, write out your imple
 - How you'll verify it works
 
 For **complex** tasks: look at the existing architecture before committing to an approach. Follow existing patterns \u2014 one consistent pattern well-applied beats a new pattern.
+
+**If \`resume_mode = true\`:** the plan already exists in \`resume_context\`. Load it, review what's already checked \`[x]\`, and skip this planning step \u2014 go straight to Phase 8 using the existing plan.
+
+**Write the session checkpoint:** once the plan is ready, write \`.ai/session/work-issue-{issue_number}.md\` using the format defined in the memory skill. This file is your crash-recovery checkpoint \u2014 the plugin's compaction hook will inject it automatically if the context compacts mid-run. Update individual \`[ ]\` \u2192 \`[x]\` checkboxes in this file as each plan item is completed during Phase 8.
 
 Display: \`Plan: ready\`
 
@@ -410,6 +436,8 @@ Display: \`PR: {url}\`
 
 ## Phase 13 \u2014 Done
 
+Delete \`.ai/session/work-issue-{issue_number}.md\` \u2014 the workflow completed successfully, the checkpoint is no longer needed.
+
 Display:
 \`\`\`
 WORKFLOW COMPLETE
@@ -476,6 +504,8 @@ Display: \`Input: PR #{pr_number} | auto: {auto_mode}\`
 
 ## Phase 3 \u2014 Get Repo and PR Context
 
+**Check for an interrupted session first:** look for \`.ai/session/work-pr-{pr_number}.md\`. If it exists, load it as \`resume_context\` and set \`resume_mode = true\`. The session file contains the branch, feedback checklist, and progress from a previous run. You will use it to skip completed feedback items and resume from the stopping point.
+
 Do these together:
 
 **Repo info:** Run \`git remote get-url origin\` and parse the owner and repo name. Store \`repo_owner\`, \`repo_name\`.
@@ -536,6 +566,10 @@ For **medium and complex** tasks: before touching any code, write out your plan 
 - Any risks or tradeoffs
 
 For **complex** tasks: look at the existing code context before committing to an approach. Follow existing patterns.
+
+**If \`resume_mode = true\`:** the feedback plan already exists in \`resume_context\`. Load it, review which items are already checked \`[x]\`, and skip to Phase 7 addressing only the remaining \`[ ]\` items.
+
+**Write the session checkpoint:** once the plan is ready, write \`.ai/session/work-pr-{pr_number}.md\` using the format defined in the memory skill. Update individual \`[ ]\` \u2192 \`[x]\` checkboxes in this file as each feedback item is addressed during Phase 7.
 
 Display: \`Plan: ready\`
 
@@ -640,6 +674,8 @@ Display: \`Push: {branch_name} \u2192 origin\`
 ---
 
 ## Phase 13 \u2014 Done
+
+Delete \`.ai/session/work-pr-{pr_number}.md\` \u2014 the workflow completed successfully, the checkpoint is no longer needed.
 
 Display:
 \`\`\`
@@ -1663,26 +1699,6 @@ The work-issue skill handles all of that once, for the entire group together.
 - **Partial group**: if some issues complete before a critical failure, return what completed \u2014 the caller decides whether to commit partial work or discard
 `;
 
-// src/command/memory.md
-var memory_default = `---
-description: View, search, and manage project memory stored in .ai/memory/
----
-
-Load the \`memory\` skill, then perform the operation indicated by the user's input.
-
-Route as follows:
-
-- No input or \`show\` \u2192 display the full MANIFEST and entry counts
-- \`search {query}\` \u2192 find and display entries matching the query
-- \`add\` \u2192 interactively add a decision, pattern, or context entry
-- \`add decision {text}\` \u2192 write a decision entry directly
-- \`add pattern {text}\` \u2192 write a pattern entry directly
-- \`add context {text}\` \u2192 write a context entry directly
-- \`rebuild\` \u2192 regenerate MANIFEST.md from all files in .ai/memory/
-
-The memory skill has full instructions for each operation.
-`;
-
 // src/skill/memory/SKILL.md
 var SKILL_default12 = `---
 name: memory
@@ -1701,15 +1717,77 @@ Project memory lives in \`.ai/memory/\` at the repository root. It stores archit
 
 \`\`\`
 .ai/
-\u2514\u2500\u2500 memory/
-    \u251C\u2500\u2500 MANIFEST.md           \u2190 auto-maintained index (always read this first)
-    \u251C\u2500\u2500 decisions/
-    \u2502   \u2514\u2500\u2500 NNN-slug.md       \u2190 architectural decision records
-    \u251C\u2500\u2500 patterns/
-    \u2502   \u2514\u2500\u2500 name.md           \u2190 reusable code patterns
-    \u2514\u2500\u2500 context/
-        \u2514\u2500\u2500 name.md           \u2190 project context (architecture, setup, dependencies)
+\u251C\u2500\u2500 memory/
+\u2502   \u251C\u2500\u2500 MANIFEST.md           \u2190 auto-maintained index (always read this first)
+\u2502   \u251C\u2500\u2500 decisions/
+\u2502   \u2502   \u2514\u2500\u2500 NNN-slug.md       \u2190 architectural decision records
+\u2502   \u251C\u2500\u2500 patterns/
+\u2502   \u2502   \u2514\u2500\u2500 name.md           \u2190 reusable code patterns
+\u2502   \u2514\u2500\u2500 context/
+\u2502       \u2514\u2500\u2500 name.md           \u2190 project context (architecture, setup, dependencies)
+\u2514\u2500\u2500 session/
+    \u2514\u2500\u2500 {command}-{id}.md     \u2190 active workflow checkpoints (crash recovery)
 \`\`\`
+
+---
+
+## Session State \u2014 \`.ai/session/\`
+
+Session files are workflow checkpoints written during execution and deleted on successful completion. They serve as the Ralph loop \u2014 if a session crashes or hits a context limit, rerunning the same command detects the session file and resumes from where it left off. The plugin's compaction hook automatically injects any active session files into every compaction prompt, so workflow state also survives context compaction mid-run.
+
+**Naming:** \`work-issue-{number}.md\`, \`work-pr-{number}.md\`
+
+**Written:** after the implementation plan is established (Phase 7 for work-issue, Phase 6 for work-pr)
+**Updated:** as plan items are completed \u2014 mark each \`[ ]\` \u2192 \`[x]\` immediately when done
+**Deleted:** on successful workflow completion
+
+### work-issue session format
+
+\`\`\`markdown
+---
+command: work-issue
+issue: 123
+branch: issue/123
+started: 2026-03-08T17:00:00Z
+complexity: medium
+---
+
+## Implementation Plan
+- [x] Add validateEmail utility to src/utils/validation.ts
+- [ ] Update UserController.register to call the validator  \u2190 NEXT
+- [ ] Add unit tests for validateEmail
+- [ ] Update API docs
+
+## Status
+Phase 8 \u2014 Implement (1 of 4 items done)
+
+## Notes
+Tests passing on item 1. Branch is clean.
+\`\`\`
+
+### work-pr session format
+
+\`\`\`markdown
+---
+command: work-pr
+pr: 456
+branch: feature/auth-improvements
+started: 2026-03-08T17:00:00Z
+complexity: medium
+---
+
+## Blocking Feedback
+- [x] Fix null check in UserService.find (line 42) \u2014 @alice
+- [ ] Remove hardcoded timeout \u2014 @bob  \u2190 NEXT
+
+## Recommended Feedback
+- [ ] Extract magic number to named constant
+
+## Status
+Phase 7 \u2014 Implement (1 of 2 blocking items done)
+\`\`\`
+
+Session files are **not committed to git** \u2014 add \`.ai/session/\` to \`.gitignore\`. They are transient state, not shared knowledge.
 
 ---
 
@@ -1912,9 +1990,73 @@ async function install(client) {
     }
   }
 }
-var HivrrPlugin = async ({ client }) => {
+async function readManifest(worktree) {
+  try {
+    return await fs.readFile(path.join(worktree, ".ai", "memory", "MANIFEST.md"), "utf8");
+  } catch {
+    return null;
+  }
+}
+async function readSessionFiles(worktree) {
+  const sessionDir = path.join(worktree, ".ai", "session");
+  try {
+    const files = await fs.readdir(sessionDir);
+    const results = [];
+    for (const file of files) {
+      if (!file.endsWith(".md"))
+        continue;
+      try {
+        const content = await fs.readFile(path.join(sessionDir, file), "utf8");
+        results.push({ name: file, content });
+      } catch {}
+    }
+    return results;
+  } catch {
+    return [];
+  }
+}
+var HivrrPlugin = async ({ client, worktree }) => {
   await install(client);
   return {
+    "experimental.session.compacting": async (_input, output) => {
+      if (!worktree)
+        return;
+      const manifest = await readManifest(worktree);
+      const sessions = await readSessionFiles(worktree);
+      if (manifest) {
+        output.context.push(`## Project Memory
+
+${manifest}`);
+      }
+      for (const { name, content } of sessions) {
+        output.context.push(`## Active Workflow Session (${name})
+
+${content}`);
+      }
+      if (sessions.length > 0) {
+        output.prompt = `You are compacting an active hivrr workflow session. The context above includes the current workflow state. Produce a continuation summary that preserves:
+
+1. The workflow name and current phase (e.g. "work-issue, Phase 8 \u2014 Implement")
+2. The full implementation plan with each item's exact [ ] or [x] state
+3. Every file changed so far and what each change does
+4. Test and lint status at the last check
+5. Branch name, issue/PR numbers, and any linked issues
+6. Architectural decisions or patterns discovered during this session
+7. The immediate next action \u2014 be specific
+
+Be complete. This summary is the only memory the resumed session will have.`;
+      } else {
+        output.prompt = `You are compacting an opencode session. Produce a continuation summary that preserves:
+
+1. The current task and its exact status
+2. Files modified and the purpose of each change
+3. Test and lint status
+4. Decisions made and why
+5. The immediate next action
+
+The context above includes project memory (decisions, patterns, context). Ensure any memory entries referenced during this session remain accessible after compaction.`;
+      }
+    },
     event: async ({ event }) => {
       if (event.type === "session.created") {
         await client.app.log({

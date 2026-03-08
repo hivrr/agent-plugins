@@ -15,15 +15,77 @@ Project memory lives in `.ai/memory/` at the repository root. It stores architec
 
 ```
 .ai/
-└── memory/
-    ├── MANIFEST.md           ← auto-maintained index (always read this first)
-    ├── decisions/
-    │   └── NNN-slug.md       ← architectural decision records
-    ├── patterns/
-    │   └── name.md           ← reusable code patterns
-    └── context/
-        └── name.md           ← project context (architecture, setup, dependencies)
+├── memory/
+│   ├── MANIFEST.md           ← auto-maintained index (always read this first)
+│   ├── decisions/
+│   │   └── NNN-slug.md       ← architectural decision records
+│   ├── patterns/
+│   │   └── name.md           ← reusable code patterns
+│   └── context/
+│       └── name.md           ← project context (architecture, setup, dependencies)
+└── session/
+    └── {command}-{id}.md     ← active workflow checkpoints (crash recovery)
 ```
+
+---
+
+## Session State — `.ai/session/`
+
+Session files are workflow checkpoints written during execution and deleted on successful completion. They serve as the Ralph loop — if a session crashes or hits a context limit, rerunning the same command detects the session file and resumes from where it left off. The plugin's compaction hook automatically injects any active session files into every compaction prompt, so workflow state also survives context compaction mid-run.
+
+**Naming:** `work-issue-{number}.md`, `work-pr-{number}.md`
+
+**Written:** after the implementation plan is established (Phase 7 for work-issue, Phase 6 for work-pr)
+**Updated:** as plan items are completed — mark each `[ ]` → `[x]` immediately when done
+**Deleted:** on successful workflow completion
+
+### work-issue session format
+
+```markdown
+---
+command: work-issue
+issue: 123
+branch: issue/123
+started: 2026-03-08T17:00:00Z
+complexity: medium
+---
+
+## Implementation Plan
+- [x] Add validateEmail utility to src/utils/validation.ts
+- [ ] Update UserController.register to call the validator  ← NEXT
+- [ ] Add unit tests for validateEmail
+- [ ] Update API docs
+
+## Status
+Phase 8 — Implement (1 of 4 items done)
+
+## Notes
+Tests passing on item 1. Branch is clean.
+```
+
+### work-pr session format
+
+```markdown
+---
+command: work-pr
+pr: 456
+branch: feature/auth-improvements
+started: 2026-03-08T17:00:00Z
+complexity: medium
+---
+
+## Blocking Feedback
+- [x] Fix null check in UserService.find (line 42) — @alice
+- [ ] Remove hardcoded timeout — @bob  ← NEXT
+
+## Recommended Feedback
+- [ ] Extract magic number to named constant
+
+## Status
+Phase 7 — Implement (1 of 2 blocking items done)
+```
+
+Session files are **not committed to git** — add `.ai/session/` to `.gitignore`. They are transient state, not shared knowledge.
 
 ---
 

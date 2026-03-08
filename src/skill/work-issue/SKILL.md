@@ -36,7 +36,9 @@ Extract:
 - `inline_context` — any text after `:` in the input
 - `auto_mode` — true if `--auto` is present
 
-Display: `Input: {issue_numbers} | auto: {auto_mode}`
+**Check for an interrupted session:** for the first issue number, look for `.ai/session/work-issue-{number}.md`. If it exists, load it as `resume_context` and set `resume_mode = true`. The session file contains the branch, plan, and progress from a previous run that was interrupted (crash, context limit, or manual stop). You will use it in later phases to skip completed work and resume from the exact stopping point.
+
+Display: `Input: {issue_numbers} | auto: {auto_mode}` — append `| RESUMING` if `resume_mode = true`
 
 ---
 
@@ -121,6 +123,10 @@ For **medium and complex** tasks: before touching any code, write out your imple
 - How you'll verify it works
 
 For **complex** tasks: look at the existing architecture before committing to an approach. Follow existing patterns — one consistent pattern well-applied beats a new pattern.
+
+**If `resume_mode = true`:** the plan already exists in `resume_context`. Load it, review what's already checked `[x]`, and skip this planning step — go straight to Phase 8 using the existing plan.
+
+**Write the session checkpoint:** once the plan is ready, write `.ai/session/work-issue-{issue_number}.md` using the format defined in the memory skill. This file is your crash-recovery checkpoint — the plugin's compaction hook will inject it automatically if the context compacts mid-run. Update individual `[ ]` → `[x]` checkboxes in this file as each plan item is completed during Phase 8.
 
 Display: `Plan: ready`
 
@@ -215,6 +221,8 @@ Display: `PR: {url}`
 ---
 
 ## Phase 13 — Done
+
+Delete `.ai/session/work-issue-{issue_number}.md` — the workflow completed successfully, the checkpoint is no longer needed.
 
 Display:
 ```
