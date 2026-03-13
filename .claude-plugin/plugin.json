@@ -1,9 +1,0 @@
-{
-  "name": "hivrr-claude-plugin",
-  "description": "Hivrr Claude Plugin - Commands and skills for GitHub workflows, planning, and code execution",
-  "version": "1.0.0",
-  "author": {
-    "name": "retroboot"
-  },
-  "mcpServers": {}
-}

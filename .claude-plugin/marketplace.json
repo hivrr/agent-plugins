@@ -1,0 +1,34 @@
+{
+  "name": "hivrr-claude-plugin",
+  "owner": {
+    "name": "retroboot"
+  },
+  "metadata": {
+    "description": "Hivrr Claude Plugin - Commands and skills for GitHub workflows, planning, and code execution",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "hivrr-skills",
+      "description": "Collection of skills for hivrr workflows including security audits, performance audits, tech debt audits, accessibility audits, debugging, brainstorming, memory, planning, wave execution, and GitHub PR workflows",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skill/audit",
+        "./skill/audit-accessibility",
+        "./skill/audit-performance",
+        "./skill/audit-security",
+        "./skill/audit-tech-debt",
+        "./skill/brainstorm",
+        "./skill/core",
+        "./skill/debug",
+        "./skill/memory",
+        "./skill/merge-pr",
+        "./skill/plan",
+        "./skill/wave",
+        "./skill/work-issue",
+        "./skill/work-pr"
+      ]
+    }
+  ]
+}
