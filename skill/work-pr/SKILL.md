@@ -15,11 +15,9 @@ Before starting: read this entire skill, then create a focused todo list, then e
 
 ---
 
-## Phase 1 — Load Core Philosophy and Memory
+## Phase 1 — Load Core Philosophy
 
 Load the `core` skill to internalize project values: quality gates, git safety, and task completion standards. These principles govern every decision you make throughout this workflow.
-
-Load memory: if `.ai/memory/MANIFEST.md` exists, read it. Based on the PR's focus area and feedback topics, pick the 3–7 most relevant entries and read those files. Hold this as `loaded_memory`. If no MANIFEST exists, skip silently.
 
 ---
 
@@ -41,8 +39,6 @@ Display: `Input: PR #{pr_number} | auto: {auto_mode}`
 ---
 
 ## Phase 3 — Get Repo and PR Context
-
-**Check for an interrupted session first:** look for `.ai/session/work-pr-{pr_number}.md`. If it exists, load it as `resume_context` and set `resume_mode = true`. The session file contains the branch, feedback checklist, and progress from a previous run. You will use it to skip completed feedback items and resume from the stopping point.
 
 Do these together:
 
@@ -104,10 +100,6 @@ For **medium and complex** tasks: before touching any code, write out your plan 
 - Any risks or tradeoffs
 
 For **complex** tasks: look at the existing code context before committing to an approach. Follow existing patterns.
-
-**If `resume_mode = true`:** the feedback plan already exists in `resume_context`. Load it, review which items are already checked `[x]`, and skip to Phase 7 addressing only the remaining `[ ]` items.
-
-**Write the session checkpoint:** once the plan is ready, write `.ai/session/work-pr-{pr_number}.md` using the format defined in the memory skill. Update individual `[ ]` → `[x]` checkboxes in this file as each feedback item is addressed during Phase 7.
 
 Display: `Plan: ready`
 
@@ -172,9 +164,7 @@ Wait for their response before continuing.
 
 ## Phase 10 — Commit
 
-Save memory: review what was changed. If addressing this feedback revealed a decision, established a pattern, or surfaced context worth preserving, write it to `.ai/memory/` using the memory skill conventions and update `MANIFEST.md`. If nothing significant emerged, skip.
-
-Stage all changes: `git add -A` — this picks up any memory files written above.
+Stage all changes: `git add -A`
 
 Write a conventional commit message:
 - Format: `{type}({scope}): {description}`
@@ -212,8 +202,6 @@ Display: `Push: {branch_name} → origin`
 ---
 
 ## Phase 13 — Done
-
-Delete `.ai/session/work-pr-{pr_number}.md` — the workflow completed successfully, the checkpoint is no longer needed.
 
 Display:
 ```

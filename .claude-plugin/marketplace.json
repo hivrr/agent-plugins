@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "hivrr-skills",
-      "description": "Collection of skills for hivrr workflows including security audits, performance audits, tech debt audits, accessibility audits, debugging, brainstorming, memory, planning, wave execution, and GitHub PR workflows",
+      "description": "Collection of skills for hivrr workflows including security audits, performance audits, tech debt audits, accessibility audits, debugging, brainstorming, planning, wave execution, and GitHub PR workflows",
       "source": "./",
       "strict": false,
       "skills": [
@@ -22,7 +22,6 @@
         "./skill/brainstorm",
         "./skill/core",
         "./skill/debug",
-        "./skill/memory",
         "./skill/merge-pr",
         "./skill/plan",
         "./skill/wave",
