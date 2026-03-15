@@ -302,14 +302,46 @@ BLOCKED: [question text]. Posted question, waiting for human answer.
 
 The worker process detects the question file and transitions the job to `paused_waiting_for_input`.
 
+### Stale Question Recovery
+
+A question is considered **stale** if no answer file has appeared after 24 hours (compare `posted_at` in the question file against the current time).
+
+**Detection:** During Phase 0, if a question file exists but no corresponding answer file is present, check the `posted_at` timestamp. If the question is stale, log a warning:
+
+```
+WARNING: Stale question for issue #{N} — posted {age} ago with no answer.
+```
+
+**Recovery options:**
+
+1. **Abort** — Clean up and return the branch to a workable state:
+   - Delete the question file: `.ai/session/work-issue-{N}-question.json`
+   - Log: `Aborted stale question for issue #{N}. Branch {branch_name} left intact for manual review.`
+   - Leave the branch and any uncommitted changes intact so the user can inspect them
+   - Return control to the caller
+
+2. **Resolve autonomously** — If the question can now be answered by re-reading the codebase or if the issue has been updated with clarifying information:
+   - Log: `Resolving stale question autonomously: [resolution rationale]`
+   - Append the original question and the autonomous resolution to `.ai/session/work-issue-log.md` with a timestamp
+   - Delete the question file
+   - Continue from the blocked phase with the resolution as context
+
+3. **Re-post** — If the question is still valid and unanswerable:
+   - Update `posted_at` to the current timestamp
+   - Log: `Re-posted stale question for issue #{N}.`
+   - Exit cleanly as in the original Question Protocol
+
+When `--auto` is set, prefer option 2 (resolve autonomously) if possible, otherwise fall back to option 1 (abort). When `--auto` is not set, present the options to the user and let them choose.
+
 ### Resume Protocol
 
 When execution resumes after a human provides an answer (injected via `answer.json` alongside the question file):
 
 1. Read `.ai/session/work-issue-{N}-question.json` and `.ai/session/work-issue-{N}-answer.json`
 2. Log: `Resuming with answer: [answer text]`
-3. Delete both the question and answer files
-4. Continue from the blocked phase with the answer as context
+3. **Persist the answer before cleanup:** Append the question and answer content to `.ai/session/work-issue-log.md` with a timestamp. This ensures the context survives if the skill crashes after file deletion but before completing the blocked phase.
+4. Delete both the question and answer files
+5. Continue from the blocked phase with the answer as context
 
 ### Examples
 
