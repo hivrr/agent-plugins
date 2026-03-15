@@ -336,6 +336,22 @@ WARNING: Stale question for issue #{N} — posted {age} ago with no answer.
 
 When `--auto` is set, prefer option 2 (resolve autonomously) if possible, otherwise use option 1 (abort). Option 3 (re-post) is not available in `--auto` mode. When `--auto` is not set, present all three options to the user and let them choose.
 
+#### Autonomous Resolution Examples
+
+Use these examples to calibrate whether Option 2 (resolve autonomously) is appropriate:
+
+**✅ Qualifies for Option 2 — answerable from the codebase:**
+The question asked which file to put the new validation logic in; re-reading the codebase reveals only one candidate (`src/validators/input.ts`) — autonomous resolution is safe.
+
+**✅ Qualifies for Option 2 — issue updated with missing info:**
+The question asked for the API key format to validate against; the issue body was updated after the question was posted to include the format spec — the blocker no longer exists.
+
+**❌ Should abort (Option 1) — product decision required:**
+The question asked whether a setting should be a user-facing config flag or a hardcoded value — this is a product decision that cannot be answered from code alone.
+
+**❌ Should abort (Option 1) — external resource needed:**
+The question asked for credentials or access to an external service (e.g., a third-party API key, a deploy role ARN) that the agent cannot obtain by reading the codebase.
+
 ### Resume Protocol
 
 When execution resumes after a human provides an answer (injected via `answer.json` alongside the question file):
