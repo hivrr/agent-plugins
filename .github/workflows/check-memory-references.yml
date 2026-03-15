@@ -1,0 +1,26 @@
+name: Check memory references
+
+on:
+  pull_request:
+    paths:
+      - "skill/**"
+  push:
+    branches:
+      - main
+    paths:
+      - "skill/**"
+
+jobs:
+  check-memory-references:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify no memory references in affected skills
+        run: |
+          if grep -r '.ai/memory\|MANIFEST\|loaded_memory' skill/audit skill/debug skill/brainstorm skill/merge-pr skill/plan; then
+            echo "::error::Memory references found in skills that should not contain them (removed in PR #7)"
+            exit 1
+          fi
+          echo "No memory references found — check passed."
