@@ -19,8 +19,10 @@ Before doing anything else, check if this is a resume from a previously blocked 
 
 1. Scan for `.ai/session/work-issue-*-answer.json`
 2. If an answer file exists, jump directly to the **Resume Protocol** section below
-3. If no answer file exists, check for `.ai/session/work-issue-*-question.json`. If a question file exists, apply the **Stale Question Recovery** protocol.
-4. If neither file exists, continue to Phase 1
+3. If no answer file exists, check for `.ai/session/work-issue-*-question.json`
+   - If a question file exists and is **stale** (posted_at > 24 hours ago), apply the **Stale Question Recovery** protocol
+   - If a question file exists but is **not stale**, log `Question for issue #{N} is still pending ({age} old). Exiting to wait for answer.` and exit cleanly
+4. If no question or answer file exists, continue to Phase 1
 
 ---
 
@@ -307,7 +309,7 @@ The worker process detects the question file and transitions the job to `paused_
 
 A question is considered **stale** if no answer file has appeared after 24 hours (compare `posted_at` in the question file against the current time).
 
-**Detection:** During Phase 0, if a question file exists but no corresponding answer file is present, check the `posted_at` timestamp. If the question is stale, log a warning:
+**Detection:** Phase 0 checks `posted_at` in the question file and routes here when the question is stale. On entry, log:
 
 ```
 WARNING: Stale question for issue #{N} — posted {age} ago with no answer.
