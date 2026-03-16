@@ -2,8 +2,8 @@
   "name": "hivrr-claude-plugin",
   "owner": { "name": "retroboot" },
   "metadata": {
-    "description": "Hivrr Claude Plugin — Skills and commands for implementation, brainstorming, and planning",
-    "version": "2.0.0"
+    "description": "Hivrr Claude Plugin — Skills and commands for implementation, brainstorming, planning, and code review",
+    "version": "2.1.0"
   },
   "plugins": [
     {
@@ -47,11 +47,19 @@
       "strict": false,
       "skills": ["./skill/planning"],
       "commands": ["./command/planning"]
+    },
+    {
+      "name": "hivrr-review",
+      "description": "Pull request code review — fetches diff, analyzes, posts structured BLOCKER/REQUIRED/DEFERRED comment",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skill/review-pr"],
+      "commands": ["./command/review-pr"]
     }
   ],
   "bundles": {
-    "dev-in-a-box":        ["hivrr-brainstorm", "hivrr-planning", "hivrr-skills"],
-    "implementation-only": ["hivrr-skills"],
+    "dev-in-a-box":        ["hivrr-brainstorm", "hivrr-planning", "hivrr-review", "hivrr-skills"],
+    "implementation-only": ["hivrr-review", "hivrr-skills"],
     "planning-suite":      ["hivrr-brainstorm", "hivrr-planning"]
   }
 }
