@@ -24,7 +24,7 @@ Load the `core` skill for quality standards and architectural principles.
 Generate a session UUID to identify this brainstorm session. If a `SESSION_UUID` is provided via environment variable or task spec, use that instead.
 
 ```bash
-SESSION_UUID="${SESSION_UUID:-$(uuidgen | tr '[:upper:]' '[:lower:]')}"
+SESSION_UUID="${SESSION_UUID:-$(uuidgen 2>/dev/null | tr '[:upper:]' '[:lower:]' || python3 -c 'import uuid; print(uuid.uuid4())')}"
 ```
 
 Store: `session_uuid`
@@ -48,6 +48,8 @@ If the memory write fails or the memory MCP tool is not available, write to loca
 
 Log a warning if falling back: `WARNING: Memory unavailable, using local file fallback at .ai/session/{session_uuid}/`
 
+> **Note:** `.ai/` is intended as ephemeral scratch space. Add `.ai/` to your project's `.gitignore` to prevent session artifacts from accumulating in version control.
+
 If `project_uuid` is provided (via environment variable or task spec), link the session to the project:
 
 **Memory write:**
@@ -57,7 +59,7 @@ project/{project_uuid}/sessions = [...existing, session_uuid]
 
 **Local file fallback:**
 ```
-.ai/session/{session_uuid}/project.md → project_uuid
+.ai/project/{project_uuid}/sessions.md → append session_uuid (one UUID per line)
 ```
 
 ---
@@ -153,7 +155,20 @@ Write each question to the question channel and wait for an answer to be injecte
 }
 ```
 
-2. Wait for answer injection at `.ai/session/{session_uuid}/answer.json`
+2. Poll for the answer at `.ai/session/{session_uuid}/answer.json`. Check every 2 seconds. If no answer arrives within 5 minutes, write an error and exit gracefully:
+
+```json
+// .ai/session/{session_uuid}/error.json
+{
+  "session_uuid": "{session_uuid}",
+  "turn": "{turn}",
+  "error": "timeout",
+  "message": "No answer received within 5 minutes",
+  "timestamp": "{ISO 8601 timestamp}"
+}
+```
+
+Then stop the session.
 
 3. When the answer arrives:
    - Read the answer
@@ -217,8 +232,9 @@ session/{session_uuid}/summary = {
   "key_insights": ["..."],
   "decisions_made": ["..."],
   "open_questions": ["..."],
-  "recommended_next": "plan | done"
+  "recommended_next": "plan"
 }
+// recommended_next is an enum: "plan" = hand off to /plan; "done" = stop here
 ```
 
 **Local file fallback:**
