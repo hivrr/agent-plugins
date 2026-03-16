@@ -1,6 +1,6 @@
 # Hivrr Claude Plugin
 
-Skills and commands for implementation, brainstorming, and planning workflows in Claude Code.
+Skills and commands for implementation, brainstorming, planning, and code review workflows in Claude Code.
 
 ## Plugins
 
@@ -31,14 +31,23 @@ Project planning and task decomposition.
 
 ---
 
+### `hivrr-review`
+Pull request code review — fetches diff, analyzes it, and posts a structured BLOCKER/REQUIRED/DEFERRED comment.
+
+**Skills:** `review-pr`
+
+**Commands:** `review-pr`
+
+---
+
 ## Bundles
 
 Bundles let a plugin manager install the right combination of plugins for a given task type.
 
 | Bundle | Plugins included |
 |--------|-----------------|
-| `dev-in-a-box` | `hivrr-brainstorm`, `hivrr-planning`, `hivrr-skills` |
-| `implementation-only` | `hivrr-skills` |
+| `dev-in-a-box` | `hivrr-brainstorm`, `hivrr-planning`, `hivrr-review`, `hivrr-skills` |
+| `implementation-only` | `hivrr-review`, `hivrr-skills` |
 | `planning-suite` | `hivrr-brainstorm`, `hivrr-planning` |
 
 - A container running implementation work installs `implementation-only` — no brainstorm or planning tools in context, faster startup.
