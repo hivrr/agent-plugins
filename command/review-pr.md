@@ -13,7 +13,7 @@ Supported formats:
 - `https://github.com/owner/repo/pull/99` — full PR URL
 - Either of the above followed by `: some context` for inline hints
 
-Fetches the diff, detects whether this is a first review or follow-up, and posts a structured BLOCKER / REQUIRED / DEFERRED comment directly on the PR.
+Fetches the diff, detects whether this is a first review or follow-up, and posts a structured BLOCKER / REQUIRED / DEFERRED comment directly on the PR. Optionally append `: some context` to focus the review on a specific area.
 
 Examples:
 ```

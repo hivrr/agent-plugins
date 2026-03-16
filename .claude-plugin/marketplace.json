@@ -56,10 +56,5 @@
       "skills": ["./skill/review-pr"],
       "commands": ["./command/review-pr"]
     }
-  ],
-  "bundles": {
-    "dev-in-a-box":        ["hivrr-brainstorm", "hivrr-planning", "hivrr-review", "hivrr-skills"],
-    "implementation-only": ["hivrr-review", "hivrr-skills"],
-    "planning-suite":      ["hivrr-brainstorm", "hivrr-planning"]
-  }
+  ]
 }

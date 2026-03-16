@@ -34,12 +34,14 @@ Display: `Review: PR #{pr_number} in {repo_owner}/{repo_name}`
 Run these in parallel:
 
 1. **Diff:** `gh pr diff {pr_number} --repo {repo_owner}/{repo_name}`
-2. **PR metadata:** `gh pr view {pr_number} --repo {repo_owner}/{repo_name} --json title,body,headRefName,baseRefName,author,additions,deletions`
+2. **PR metadata:** `gh pr view {pr_number} --repo {repo_owner}/{repo_name} --json title,body,author,additions,deletions`
 3. **Review history:** `gh api repos/{repo_owner}/{repo_name}/issues/{pr_number}/comments --jq '[.[] | {user: .user.login, created_at, body}]'`
 
-Determine review type:
-- **First review** — no prior review comments in the thread (or only bot comments that aren't substantive reviews)
-- **Follow-up review** — prior review comments exist; focus on verifying previous feedback was addressed rather than raising new non-BLOCKER findings
+If `additions + deletions > 3000`, emit a warning: `⚠️ Large diff ({additions + deletions} lines) — consider narrowing scope with inline context, e.g. /review-pr {pr_number} : focus on auth/`. Continue regardless.
+
+Determine review type from the comment history:
+- **First review** — no prior review comments exist, or all existing comments are from bots (login ending in `[bot]`) and none contain the markers `## Code Review`, `BLOCKER`, `REQUIRED`, or `DEFERRED`
+- **Follow-up review** — at least one non-bot comment exists, or a bot comment contains one of those markers (indicating a prior structured review was posted)
 
 Store: `diff`, `pr_meta`, `review_history`, `review_type`.
 
