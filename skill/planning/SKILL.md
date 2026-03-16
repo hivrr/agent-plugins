@@ -47,7 +47,7 @@ session/{session_uuid}/intent
 .ai/session/{session_uuid}/intent.md
 ```
 
-If intent is found, use it as starting context — the topic, framing, constraints, non-goals, and open questions from the brainstorm session inform the planning process. Skip or shorten Phase 4 (Clarify) if the intent already resolves ambiguity.
+If intent is found, use it as starting context — the topic, framing, constraints, non-goals, and open questions from the brainstorm session inform the planning process. Skip or shorten Phase 5 (Clarify) if the intent already resolves ambiguity.
 
 If no intent is found, continue normally — the planning skill works standalone.
 
@@ -260,7 +260,7 @@ After issue creation, persist the planning output to memory before exiting.
 **Memory write:**
 ```
 session/{session_uuid}/prd         = full PRD text
-session/{session_uuid}/plan        = [{ task_id, title, repo, model_config,
+session/{session_uuid}/plan        = [{ task_id, title, repo,
                                         dependencies, acceptance_criteria,
                                         github_issue_url }]
 session/{session_uuid}/decisions   = architectural choices made during decomposition
@@ -280,8 +280,8 @@ Do not fail if memory write fails — log the warning and continue.
 Display:
 
 ```
-PLAN COMPLETE
-──────────────
+PLANNING COMPLETE
+─────────────────
 Session: {session_uuid}
 GitHub: {issue_numbers}
 Linear: {linear_ids or 'not configured'}
