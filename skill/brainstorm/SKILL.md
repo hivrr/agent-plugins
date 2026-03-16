@@ -7,7 +7,7 @@ compatibility: opencode
 
 # Brainstorm
 
-A thinking session — not an implementation session. The goal is to reach clarity on a problem, explore alternatives, and challenge assumptions before committing to an approach. Nothing is built here. At the end, the user decides whether to write a summary, move to `/plan`, or simply stop.
+A thinking session — not an implementation session. The goal is to reach clarity on a problem, explore alternatives, and challenge assumptions before committing to an approach. Nothing is built here. At the end, the user decides whether to write a summary, move to `/planning`, or simply stop.
 
 Keep the conversation moving. Ask pointed questions. Do not drift into implementation detail unless the user pulls you there. Depth over breadth — explore one thread fully before branching.
 
@@ -232,9 +232,9 @@ session/{session_uuid}/summary = {
   "key_insights": ["..."],
   "decisions_made": ["..."],
   "open_questions": ["..."],
-  "recommended_next": "plan"
+  "recommended_next": "planning"
 }
-// recommended_next is an enum: "plan" = hand off to /plan; "done" = stop here
+// recommended_next is an enum: "planning" = hand off to /planning; "done" = stop here
 ```
 
 **Local file fallback:**
@@ -244,10 +244,10 @@ Write `.ai/session/{session_uuid}/summary.md` with the same content.
 
 Offer:
 
-1. **Create issues** — hand off to `/plan` to break this into actionable GitHub/Linear issues
+1. **Create issues** — hand off to `/planning` to break this into actionable GitHub/Linear issues
 2. **Done** — stop here, no artifacts
 
-If they choose to create issues, run `/plan` with the topic as input.
+If they choose to create issues, run `/planning` with the topic as input.
 
 Display:
 ```

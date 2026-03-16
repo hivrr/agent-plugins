@@ -23,7 +23,7 @@
         "./skill/core",
         "./skill/debug",
         "./skill/merge-pr",
-        "./skill/plan",
+        "./skill/planning",
         "./skill/wave",
         "./skill/work-issue",
         "./skill/work-pr"
