@@ -1,16 +1,14 @@
 {
   "name": "hivrr-claude-plugin",
-  "owner": {
-    "name": "retroboot"
-  },
+  "owner": { "name": "retroboot" },
   "metadata": {
-    "description": "Hivrr Claude Plugin - Commands and skills for GitHub workflows, planning, and code execution",
-    "version": "1.0.0"
+    "description": "Hivrr Claude Plugin — Skills and commands for implementation, brainstorming, and planning",
+    "version": "2.0.0"
   },
   "plugins": [
     {
       "name": "hivrr-skills",
-      "description": "Collection of skills for hivrr workflows including security audits, performance audits, tech debt audits, accessibility audits, debugging, brainstorming, planning, wave execution, and GitHub PR workflows",
+      "description": "Implementation and code workflow skills — audits, debugging, PR workflows, wave execution",
       "source": "./",
       "strict": false,
       "skills": [
@@ -19,15 +17,41 @@
         "./skill/audit-performance",
         "./skill/audit-security",
         "./skill/audit-tech-debt",
-        "./skill/brainstorm",
         "./skill/core",
         "./skill/debug",
         "./skill/merge-pr",
-        "./skill/planning",
         "./skill/wave",
         "./skill/work-issue",
         "./skill/work-pr"
+      ],
+      "commands": [
+        "./command/audit",
+        "./command/debug",
+        "./command/merge-pr",
+        "./command/work-issue",
+        "./command/work-pr"
       ]
+    },
+    {
+      "name": "hivrr-brainstorm",
+      "description": "Interactive brainstorming for product ideation and refinement",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skill/brainstorm"],
+      "commands": ["./command/brainstorm"]
+    },
+    {
+      "name": "hivrr-planning",
+      "description": "Project planning and task decomposition",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skill/planning"],
+      "commands": ["./command/planning"]
     }
-  ]
+  ],
+  "bundles": {
+    "dev-in-a-box":        ["hivrr-brainstorm", "hivrr-planning", "hivrr-skills"],
+    "implementation-only": ["hivrr-skills"],
+    "planning-suite":      ["hivrr-brainstorm", "hivrr-planning"]
+  }
 }
