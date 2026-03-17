@@ -47,3 +47,30 @@ Always note at least one positive observation.
 
 Follow existing patterns in the codebase. One pattern well-applied is better than five variations.
 Ask rather than assume on architectural decisions.
+
+## File Verification
+
+Never assume a file path. Before editing any file:
+
+- Use Glob or Grep to locate the actual file — do not guess based on naming conventions
+- If you're unsure which file owns a behavior, search by function name, symbol, or export before touching anything
+- Confirm the file exists and contains what you expect before writing an edit
+
+Guessing a path and being wrong wastes a round trip and can silently edit the wrong file. Verify first, edit second.
+
+## Edit Safety
+
+Before applying any edit, verify the target content is exactly what you read. Files can change between your read and your edit — a stale reference produces a wrong or failed edit.
+
+**Single edit:**
+- Re-read the specific lines you intend to change immediately before editing
+- Confirm the content matches what you expect — if it doesn't, re-read the full file and replan the edit
+
+**Multiple edits to the same file:**
+- Validate all target locations before applying any of them — catch mismatches before mutating anything
+- Apply edits bottom-up (highest line numbers first) so earlier splices don't invalidate later line references
+- If any edit fails, stop and re-read the file before attempting the remaining edits
+
+**If an edit fails:**
+- Never retry the same edit unchanged — the content has drifted
+- Re-read the file, find the new location of the target content, and replan
