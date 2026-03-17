@@ -144,6 +144,7 @@ Load the `wave` skill. Pass it the ordered issue list, the fetched issue data, a
 
 **Single issue or sequential strategy:**
 Write the code directly. Follow these principles:
+- **Verify before editing**: Never assume a file path. Use Glob or Grep to locate the actual file first. If you're unsure which file owns a behavior, search by function name or symbol. Confirm the file exists and contains what you expect before writing any edit.
 - Follow existing patterns in the codebase — explore before writing
 - Make the smallest change that satisfies the requirements
 - Handle errors explicitly — don't let things fail silently
