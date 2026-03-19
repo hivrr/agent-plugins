@@ -173,9 +173,12 @@ if [[ ${#LINKED_ISSUES[@]} -gt 0 ]]; then
     if [[ "$ISSUE_STATE" == "CLOSED" ]]; then
       echo "Issue #${ISSUE_NUM}: already closed"
     elif [[ "$ISSUE_STATE" == "OPEN" ]]; then
-      gh issue close "$ISSUE_NUM" --repo "$REPO" 2>/dev/null \
-        && { echo "Issue #${ISSUE_NUM}: closed"; (( MANUALLY_CLOSED++ )); } \
-        || echo "WARNING: Failed to close issue #${ISSUE_NUM}" >&2
+      if gh issue close "$ISSUE_NUM" --repo "$REPO" 2>/dev/null; then
+        echo "Issue #${ISSUE_NUM}: closed"
+        MANUALLY_CLOSED=$(( MANUALLY_CLOSED + 1 ))
+      else
+        echo "WARNING: Failed to close issue #${ISSUE_NUM}" >&2
+      fi
     else
       echo "WARNING: Could not determine state of issue #${ISSUE_NUM}" >&2
     fi
