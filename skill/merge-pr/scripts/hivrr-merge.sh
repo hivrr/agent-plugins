@@ -96,20 +96,20 @@ fi
 # ---------------------------------------------------------------------------
 if [[ "$ALREADY_MERGED" == "false" ]]; then
   echo "Checking CI..."
-  CI_JSON=$(gh pr checks "$PR_NUMBER" --repo "$REPO" --json name,state 2>&1) || {
-    echo "ERROR: Failed to fetch CI checks: ${CI_JSON}" >&2
+  # gh pr checks has no --json flag; output is tab-separated: name, state, duration, url
+  CI_OUTPUT=$(gh pr checks "$PR_NUMBER" --repo "$REPO" 2>&1) || {
+    echo "ERROR: Failed to fetch CI checks: ${CI_OUTPUT}" >&2
     exit 1
   }
 
-  FAILING=$(echo "$CI_JSON" | jq -r \
-    '.[] | select(.state | ascii_downcase | test("failure|timed_out|cancelled|startup_failure|action_required")) | "  \(.name): \(.state)"')
+  FAILING=$(echo "$CI_OUTPUT" | awk -F'\t' 'NF>=2 && $2 ~ /^(fail|failure|timed_out|cancelled|startup_failure|action_required)$/ {print "  " $1 ": " $2}')
   if [[ -n "$FAILING" ]]; then
     echo "ERROR: CI checks are failing — cannot merge:" >&2
     echo "$FAILING" >&2
     exit 1
   fi
 
-  CHECK_COUNT=$(echo "$CI_JSON" | jq 'length')
+  CHECK_COUNT=$(echo "$CI_OUTPUT" | grep -cE $'^.+\t' || true)
   if [[ "$CHECK_COUNT" -eq 0 ]]; then
     echo "CI: no checks configured — continuing"
   else
