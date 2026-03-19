@@ -55,6 +55,14 @@
       "strict": false,
       "skills": ["./skill/review-pr"],
       "commands": ["./command/review-pr"]
+    },
+    {
+      "name": "hivrr-score-issues",
+      "description": "Score GitHub issues by urgency (0-99) for work allocation prioritization",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skill/score-issues"],
+      "commands": ["./command/score-issues"]
     }
   ]
 }

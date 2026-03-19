@@ -40,6 +40,15 @@ Pull request code review — fetches diff, analyzes it, and posts a structured B
 
 ---
 
+### `hivrr-score-issues`
+Score GitHub issues by urgency for work allocation prioritization.
+
+**Skills:** `score-issues`
+
+**Commands:** `score-issues`
+
+---
+
 ## Bundles
 
 Bundles let a plugin manager install the right combination of plugins for a given task type.
