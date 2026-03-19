@@ -12,28 +12,26 @@ result. No user interaction — run to completion and exit.
 
 ## Phase 1 — Parse Input
 
-Input format: `--issues 123,456,789`
+Input format: `--repo owner/name --issues 123,456,789`
 
-Extract `issue_numbers` as a list of integers.
+Extract:
+- `repo` — required, from `--repo owner/name`
+- `issue_numbers` — comma-separated integers from `--issues`
 
-If no issues are provided or the list is empty, emit:
+If either `--repo` or `--issues` is missing or the issue list is empty, emit:
 RESULT_JSON: {"scores": {}}
 and exit.
 
-## Phase 2 — Get Repo
-
-Run `git remote get-url origin` and parse `repo_owner` and `repo_name`.
-
-## Phase 3 — Fetch Issues
+## Phase 2 — Fetch Issues
 
 For each issue number, run:
-gh issue view {number} --repo {repo_owner}/{repo_name} --json number,title,body,labels,state
+gh issue view {number} --repo {repo} --json number,title,body,labels,state
 
 Skip any issue that returns an error (closed, not found) — do not stop.
 
 Truncate each body to 500 characters before scoring.
 
-## Phase 4 — Score
+## Phase 3 — Score
 
 Score each fetched issue on a 0–99 urgency scale using these criteria:
 
@@ -45,7 +43,7 @@ Score each fetched issue on a 0–99 urgency scale using these criteria:
 
 Assign one integer per issue. Issues that errored during fetch receive score 0.
 
-## Phase 5 — Emit Result
+## Phase 4 — Emit Result
 
 Display:
 ```

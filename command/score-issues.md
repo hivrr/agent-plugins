@@ -8,7 +8,7 @@ Load the `score-issues` skill and score the given issues.
 
 **Arguments:** $ARGUMENTS
 
-Format: `--issues 123,456,789`
+Format: `--repo owner/name --issues 123,456,789`
 
 Example:
-/score-issues --issues 123,456,789
+/score-issues --repo hivrr/manager --issues 123,456,789
