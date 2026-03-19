@@ -30,125 +30,38 @@ Extract:
 - `pr_number` — the PR number to merge
 - `auto_mode` — true if `--auto` is present
 
+Get the repo: run `git remote get-url origin` and parse the owner and repo name into `repo_slug` (format: `owner/repo`).
+
 Display: `Input: PR #{pr_number} | auto: {auto_mode}`
 
 ---
 
-## Phase 3 — Get Repo and PR Details
+## Phase 3 — Run hivrr-merge.sh
 
-**Repo info:** Run `git remote get-url origin` and parse the owner and repo name. Store `repo_owner`, `repo_name`.
+Invoke the merge script, passing the values extracted in Phase 2:
 
-**PR details:** Run `gh pr view {pr_number} --json title,body,headRefName,state,reviews`. Get the title, body, branch name, current state, and review status.
+```
+bash "${CLAUDE_SKILL_DIR}/scripts/hivrr-merge.sh" \
+  --pr {pr_number} \
+  --repo {repo_slug} \
+  [--auto]
+```
 
-- If the PR is already merged: display "PR #{pr_number} is already merged" and jump to Phase 7 (cleanup).
-- If the PR is closed but not merged: warn and stop.
-- If the PR is still open with changes requested: warn the user that feedback is unaddressed, but let them decide whether to continue.
+Include `--auto` only when `auto_mode` is true.
 
-Store: `pr_title`, `branch_name` (from headRefName), `pr_body`.
+**If the script exits non-zero:** surface the error output and stop. Do not proceed to Phase 4.
 
-Display: `PR #{pr_number}: "{pr_title}" | state: {state}`
+**On success:** the script prints a structured summary line before exiting:
 
----
+```
+HIVRR_MERGE_SUMMARY pr={pr_number} issues_closed={comma_list|none} branch_deleted={branch_name}
+```
 
-## Phase 4 — Extract Linked Issues
-
-Parse the PR body to find issues that will be closed by this merge. Look for these patterns (case-insensitive):
-- `Closes #123`, `Fixes #123`, `Resolves #123`
-- `Close #123`, `Fix #123`, `Resolve #123`
-
-Deduplicate any repeated issue numbers. Skip malformed references (e.g. `#` not followed by digits).
-
-Store: `linked_issues` — an array of issue numbers (may be empty).
-
-Display: `Linked issues: {linked_issues.join(', ') || 'none'}`
+Parse this line to extract `merged_pr`, `issues_closed` (list of numbers, may be empty), and `branch_deleted`. These values are used in the Phase 5 WORKFLOW COMPLETE display.
 
 ---
 
-## Phase 5 — Verify CI
-
-Run `gh pr checks {pr_number}` to get the CI status.
-
-- If all checks pass: continue.
-- If any checks are failing: display which checks failed and stop. Don't merge a PR with failing CI. The user needs to fix the failures first (use `/work-pr` to address them).
-- If there are no checks: note it but continue — not all repos have CI.
-
-Display: `CI: {all passed | {N} failing — cannot merge}`
-
----
-
-## Phase 6 — Confirm (unless --auto)
-
-**Skip this phase if `--auto` is set.**
-
-Display a merge summary:
-- PR title and number
-- CI status
-- Merge method: squash
-- Linked issues that will be closed: `{linked_issues.join(', ') || 'none'}`
-- Branch that will be deleted: `{branch_name}` (local and remote)
-
-Ask: "Ready to merge?" with options:
-- Merge and clean up
-- View PR diff (`gh pr diff {pr_number}`)
-- Abort (leave PR open)
-
-Wait for their response before continuing.
-
----
-
-## Phase 7 — Merge
-
-Merge the PR with squash: `gh pr merge {pr_number} --squash --delete-branch`
-
-The `--delete-branch` flag handles the remote branch deletion. If it fails, note it and handle it manually in Phase 9.
-
-Display: `Merged: PR #{pr_number} → main (squash)`
-
----
-
-## Phase 8 — Close Linked Issues
-
-If `linked_issues` is empty, display "Linked issues: none" and skip to Phase 9.
-
-GitHub's auto-close (triggered by "Closes #N" in the PR body) usually fires on merge, but it's eventually consistent. Wait a few seconds, then check each linked issue:
-
-For each issue in `linked_issues`:
-1. Run `gh issue view {number} --repo {repo_owner}/{repo_name} --json state`
-2. If it's already closed: display `Issue #{number}: already closed`
-3. If it's still open: close it manually with `gh issue close {number} --repo {repo_owner}/{repo_name}` and display `Issue #{number}: closed`
-4. If the command fails: warn and continue — don't let one failure block the others
-
-Display: `Linked issues: {count} verified, {closed_count} manually closed`
-
----
-
-## Phase 9 — Switch to Main and Pull
-
-Checkout main: `git checkout main` (or `master` if that's the default branch).
-
-Pull the latest: `git pull origin main`
-
-Display: `Main: updated`
-
----
-
-## Phase 10 — Clean Up Branches
-
-**Delete local branch:** `git branch -d {branch_name}`
-
-If it fails with "not fully merged", use `git branch -D {branch_name}` — the branch was already merged into main via the PR, so this is safe.
-
-**Delete remote branch** (if `--delete-branch` in Phase 7 didn't handle it):
-Check if remote branch still exists: `git ls-remote --heads origin {branch_name}`
-If it exists: `git push origin --delete {branch_name}`
-
-**Prune stale remote-tracking refs:** `git remote prune origin`
-
-Display: `Cleanup: local branch deleted | remote branch deleted | refs pruned`
-
----
-
-## Phase 11 — Capture Follow-up Work
+## Phase 4 — Capture Follow-up Work
 
 After merge, collect any unaddressed PR feedback that should become future issues. This prevents good suggestions from being lost.
 
@@ -177,14 +90,14 @@ Display: `Follow-up: {count} issues created {issue_numbers.join(', ') || ''}`
 
 ---
 
-## Phase 12 — Done
+## Phase 5 — Done
 
 Display:
 ```
 WORKFLOW COMPLETE
-Merged: PR #{pr_number}
-Issues closed: {linked_issues.join(', ') || 'none'}
-Branch deleted: {branch_name}
+Merged: PR #{merged_pr}
+Issues closed: {issues_closed.join(', ') || 'none'}
+Branch deleted: {branch_deleted}
 Follow-up issues: {created_numbers.join(', ') || 'none'}
 ```
 
@@ -194,8 +107,5 @@ Return control to the user.
 
 ## Error Handling
 
-- If CI is failing: stop at Phase 5, do not merge
-- If the PR is already merged: skip to Phase 9 (cleanup still needed)
-- If a linked issue close fails: warn and continue — don't block the workflow
-- If branch deletion fails: warn and continue — stale branches are a minor annoyance, not a blocker
+- If the script exits non-zero: surface the error and stop — do not proceed to Phase 4
 - If follow-up issue creation fails: warn and list the suggestions so the user can create them manually
