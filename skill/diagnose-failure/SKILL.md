@@ -25,7 +25,7 @@ and exit.
 ## Phase 2 — Fetch Logs
 
 Run:
-curl -s "http://host.docker.internal:8083/logs/{job_id}?tail=100"
+curl -s "${HIVRR_API_URL}/logs/{job_id}?tail=100"
 
 Parse the JSON response and extract the `logs` array. Join into a single string. Use the last 3000
 characters only.
