@@ -40,12 +40,12 @@ Pull request code review — fetches diff, analyzes it, and posts a structured B
 
 ---
 
-### `hivrr-score-issues`
-Score GitHub issues by urgency for work allocation prioritization.
+### `hivrr-manager`
+Manager utility skills for automated work allocation — scoring, grouping, and failure diagnosis.
 
-**Skills:** `score-issues`
+**Skills:** `score-issues`, `group-issues`, `diagnose-failure`
 
-**Commands:** `score-issues`
+**Commands:** `score-issues`, `group-issues`, `diagnose-failure`
 
 ---
 

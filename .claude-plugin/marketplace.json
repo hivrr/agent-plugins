@@ -57,12 +57,20 @@
       "commands": ["./command/review-pr"]
     },
     {
-      "name": "hivrr-score-issues",
-      "description": "Score GitHub issues by urgency (0-99) for work allocation prioritization",
+      "name": "hivrr-manager",
+      "description": "Manager utility skills — score, group, and diagnose issues for automated work allocation",
       "source": "./",
       "strict": false,
-      "skills": ["./skill/score-issues"],
-      "commands": ["./command/score-issues"]
+      "skills": [
+        "./skill/score-issues",
+        "./skill/group-issues",
+        "./skill/diagnose-failure"
+      ],
+      "commands": [
+        "./command/score-issues",
+        "./command/group-issues",
+        "./command/diagnose-failure"
+      ]
     }
   ]
 }
