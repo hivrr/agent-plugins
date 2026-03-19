@@ -178,7 +178,7 @@ if [[ ${#LINKED_ISSUES[@]} -gt 0 ]]; then
     for (( i=1; i<=5; i++ )); do
       ISSUE_STATE=$(gh issue view "$ISSUE_NUM" --repo "$REPO" --json state --jq '.state' 2>/dev/null || echo "UNKNOWN")
       [[ "$ISSUE_STATE" == "CLOSED" ]] && break
-      (( i < 5 )) && sleep 2
+      if (( i < 5 )); then sleep 2; fi
     done
     if [[ "$ISSUE_STATE" == "CLOSED" ]]; then
       echo "Issue #${ISSUE_NUM}: already closed"
