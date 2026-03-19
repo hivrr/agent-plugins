@@ -26,13 +26,11 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ -z "$ISSUE_NUMBER" ]] && { echo "ERROR: --issue is required" >&2; usage; }
+[[ "$ISSUE_NUMBER" =~ ^[0-9]+$ ]] || { echo "ERROR: --issue must be a positive integer" >&2; exit 1; }
 
 BRANCH="issue/${ISSUE_NUMBER}"
 
 # Warn if working tree is dirty, but continue
-if ! git status --porcelain | grep -q ''; then
-  :
-fi
 if [[ -n "$(git status --porcelain 2>/dev/null)" ]]; then
   echo "WARNING: Working tree has uncommitted changes — continuing anyway"
 fi

@@ -83,6 +83,10 @@ Display: `Complexity: {simple|medium|complex}`
 
 Run:
 ```bash
+if [[ -z "$CLAUDE_SKILL_DIR" ]]; then
+  echo "ERROR: CLAUDE_SKILL_DIR is not set — cannot locate hivrr-pr-checkout.sh" >&2
+  exit 1
+fi
 bash "${CLAUDE_SKILL_DIR}/scripts/hivrr-pr-checkout.sh" --branch {branch_name}
 ```
 If the script exits non-zero, surface the error and stop.
@@ -129,6 +133,10 @@ When done, display: `Implement: complete | feedback addressed: {blocking_count} 
 
 Run:
 ```bash
+if [[ -z "$CLAUDE_PLUGIN_ROOT" ]]; then
+  echo "ERROR: CLAUDE_PLUGIN_ROOT is not set — cannot locate hivrr-verify.sh" >&2
+  exit 1
+fi
 bash "${CLAUDE_PLUGIN_ROOT}/scripts/hivrr-verify.sh"
 ```
 Consume the printed summary line for the `Verify:` display. If the script exits non-zero, fix the failures and retry, up to 3 attempts.
