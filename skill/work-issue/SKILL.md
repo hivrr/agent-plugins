@@ -109,15 +109,19 @@ Display: `Complexity: {simple|medium|complex}`
 
 ## Phase 6 — Create a Working Branch
 
-Check if the working tree is clean with `git status --porcelain`. If there are uncommitted changes, warn the user but continue.
-
-**Single issue or sequential strategy:**
-Create and switch to `issue/{number}`. If the branch already exists, switch to it instead.
-
 **Unified wave strategy:**
 Skip this phase — the `wave` skill creates and manages its own branch in Phase 8.
 
-Display: `Branch: {branch_name}` (or `Branch: wave skill will create` for unified)
+Display: `Branch: wave skill will create`
+
+**Single issue or sequential strategy:**
+Run:
+```bash
+bash "${CLAUDE_SKILL_DIR}/scripts/hivrr-branch-setup.sh" --issue {number}
+```
+If the script exits non-zero, surface the error and stop.
+
+Display: `Branch: issue/{number}`
 
 ---
 
@@ -159,14 +163,11 @@ When done, display: `Implement: complete | files changed: {count}`
 
 ## Phase 9 — Verify
 
-**Run tests** (skip if only docs/config changed):
-- Look for test runners: check `package.json` scripts, `Makefile`, `pyproject.toml`, `pytest.ini`, `jest.config.*`
-- Run whatever you find. If nothing is found, say so and move on.
-- If tests fail, fix the failures now. You get 3 attempts per failure before marking it unresolved.
-
-**Run lint and type checks** (skip if only docs changed):
-- Look for linting config: `eslint`, `ruff`, `flake8`, `.eslintrc.*`, `pyproject.toml [tool.ruff]`
-- Run whatever you find. Fix any errors.
+Run:
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/hivrr-verify.sh"
+```
+Consume the printed summary line for the `Verify:` display. If the script exits non-zero, the verify step failed — fix the failures and retry, up to 3 attempts.
 
 **Review your own changes:**
 - Do the changes actually satisfy the acceptance criteria from the issue(s)?
