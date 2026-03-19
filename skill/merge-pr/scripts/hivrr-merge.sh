@@ -49,7 +49,7 @@ done
 echo "Fetching PR #${PR_NUMBER} from ${REPO}..."
 
 PR_JSON=$(gh pr view "$PR_NUMBER" --repo "$REPO" \
-  --json title,body,headRefName,state,baseRefName 2>&1) || {
+  --json title,body,headRefName,state,baseRefName,reviews 2>&1) || {
   echo "ERROR: Failed to fetch PR #${PR_NUMBER}: ${PR_JSON}" >&2
   exit 1
 }
@@ -72,13 +72,18 @@ else
   ALREADY_MERGED=false
 fi
 
+CHANGES_REQUESTED=$(echo "$PR_JSON" | jq '[.reviews[] | select(.state == "CHANGES_REQUESTED")] | length')
+if [[ "$CHANGES_REQUESTED" -gt 0 ]]; then
+  echo "WARNING: ${CHANGES_REQUESTED} review(s) requesting changes — consider addressing before merge" >&2
+fi
+
 # ---------------------------------------------------------------------------
 # Phase 4 — Extract linked issues
 # ---------------------------------------------------------------------------
 LINKED_ISSUES=()
 while IFS= read -r num; do
   [[ -n "$num" ]] && LINKED_ISSUES+=("$num")
-done < <(echo "$PR_BODY" | grep -oiP '(?:closes?|fixes?|resolves?)\s+#\K\d+' | sort -un)
+done < <(echo "$PR_BODY" | grep -oiE '(closes?|fixes?|resolves?)[[:space:]]+#[0-9]+' | grep -oE '[0-9]+' | sort -un)
 
 if [[ ${#LINKED_ISSUES[@]} -gt 0 ]]; then
   echo "Linked issues: ${LINKED_ISSUES[*]}"
@@ -91,17 +96,21 @@ fi
 # ---------------------------------------------------------------------------
 if [[ "$ALREADY_MERGED" == "false" ]]; then
   echo "Checking CI..."
-  CI_OUTPUT=$(gh pr checks "$PR_NUMBER" --repo "$REPO" 2>&1) || true
+  CI_JSON=$(gh pr checks "$PR_NUMBER" --repo "$REPO" --json name,state 2>&1) || {
+    echo "ERROR: Failed to fetch CI checks: ${CI_JSON}" >&2
+    exit 1
+  }
 
-  FAILING=$(echo "$CI_OUTPUT" | grep -E '\bfail\b|\bfailure\b|\berror\b' -i | grep -v '^$' || true)
+  FAILING=$(echo "$CI_JSON" | jq -r \
+    '.[] | select(.state | ascii_downcase | test("failure|timed_out|cancelled|startup_failure|action_required")) | "  \(.name): \(.state)"')
   if [[ -n "$FAILING" ]]; then
     echo "ERROR: CI checks are failing — cannot merge:" >&2
     echo "$FAILING" >&2
     exit 1
   fi
 
-  NO_CHECKS=$(echo "$CI_OUTPUT" | grep -i 'no checks' || true)
-  if [[ -n "$NO_CHECKS" ]]; then
+  CHECK_COUNT=$(echo "$CI_JSON" | jq 'length')
+  if [[ "$CHECK_COUNT" -eq 0 ]]; then
     echo "CI: no checks configured — continuing"
   else
     echo "CI: all checks passed"
@@ -136,13 +145,20 @@ fi
 REMOTE_DELETED=false
 if [[ "$ALREADY_MERGED" == "false" ]]; then
   echo "Merging PR #${PR_NUMBER} (squash)..."
-  gh pr merge "$PR_NUMBER" --repo "$REPO" --squash --delete-branch 2>&1 && REMOTE_DELETED=true || {
-    # --delete-branch may fail if branch was already deleted; that's fine
-    gh pr merge "$PR_NUMBER" --repo "$REPO" --squash 2>&1 || {
+  if gh pr merge "$PR_NUMBER" --repo "$REPO" --squash --delete-branch 2>&1; then
+    REMOTE_DELETED=true
+  else
+    # --delete-branch may fail if branch was already deleted; re-check state before retrying
+    RETRY_STATE=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json state --jq '.state' 2>/dev/null || echo "UNKNOWN")
+    if [[ "$RETRY_STATE" == "MERGED" ]]; then
+      echo "PR #${PR_NUMBER} was merged (branch deletion may have failed — will clean up below)"
+    elif gh pr merge "$PR_NUMBER" --repo "$REPO" --squash 2>&1; then
+      REMOTE_DELETED=false
+    else
       echo "ERROR: Merge failed" >&2
       exit 1
-    }
-  }
+    fi
+  fi
   echo "Merged: PR #${PR_NUMBER} → ${BASE_BRANCH} (squash)"
 fi
 
