@@ -43,7 +43,7 @@ done
 [[ -z "$PR_NUMBER" ]] && { echo "ERROR: --pr is required" >&2; usage; }
 [[ -z "$REPO" ]] && { echo "ERROR: --repo is required" >&2; usage; }
 
-if ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
+if ! [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
   echo "ERROR: PR_NUMBER must be a positive integer, got: ${PR_NUMBER}" >&2
   exit 1
 fi
@@ -175,10 +175,10 @@ if [[ ${#LINKED_ISSUES[@]} -gt 0 ]]; then
   for ISSUE_NUM in "${LINKED_ISSUES[@]}"; do
     # Poll for auto-close — up to 5 attempts with 2s back-off
     ISSUE_STATE="UNKNOWN"
-    for i in $(seq 1 5); do
+    for (( i=1; i<=5; i++ )); do
       ISSUE_STATE=$(gh issue view "$ISSUE_NUM" --repo "$REPO" --json state --jq '.state' 2>/dev/null || echo "UNKNOWN")
       [[ "$ISSUE_STATE" == "CLOSED" ]] && break
-      sleep 2
+      (( i < 5 )) && sleep 2
     done
     if [[ "$ISSUE_STATE" == "CLOSED" ]]; then
       echo "Issue #${ISSUE_NUM}: already closed"
