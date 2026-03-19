@@ -160,13 +160,15 @@ After each successful creation, note the issue number so you can display the ful
 
 Display:
 ```
-AUDIT COMPLETE
+WORKFLOW COMPLETE
 Domains scanned: {domains}
 Total findings: {count} ({critical} critical, {high} high, {medium} medium, {low} low)
 GitHub issues created: {issue_numbers.join(', ') || 'none'}
 ```
 
 Suggest: "Use `/work-issue {first_issue_number}` to start fixing."
+
+Return control to the user.
 
 ---
 

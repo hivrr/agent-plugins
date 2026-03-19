@@ -251,10 +251,12 @@ If they choose to create issues, run `/planning` with the topic as input.
 
 Display:
 ```
-SESSION COMPLETE
+WORKFLOW COMPLETE
 Session: {session_uuid}
 Topic: {topic}
 Phase: complete
 ```
 
 Output the session UUID for handoff to downstream workflows (e.g., planning).
+
+Return control to the user.

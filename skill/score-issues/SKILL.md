@@ -47,7 +47,13 @@ Assign one integer per issue. Issues that errored during fetch receive score 0.
 
 ## Phase 5 — Emit Result
 
-Output this exact line as the final line of your response:
+Display:
+```
+WORKFLOW COMPLETE
+Issues scored: {issue_numbers.join(', ')}
+```
+
+Then output this exact line as the final line of your response:
 
 RESULT_JSON: {"scores": {"123": 72, "456": 41, "789": 8}}
 

@@ -280,7 +280,7 @@ Do not fail if memory write fails — log the warning and continue.
 Display:
 
 ```
-PLANNING COMPLETE
+WORKFLOW COMPLETE
 ─────────────────
 Session: {session_uuid}
 GitHub: {issue_numbers}
@@ -288,3 +288,5 @@ Linear: {linear_ids or 'not configured'}
 
 Start with: /work-issue {first_issue_number}
 ```
+
+Return control to the user.

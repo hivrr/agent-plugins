@@ -158,7 +158,7 @@ Display: `Posted: review comment on PR #{pr_number}`
 
 Display:
 ```
-REVIEW COMPLETE
+WORKFLOW COMPLETE
 PR: #{pr_number}
 Type: {first review | follow-up}
 Findings: {blocker_count} blockers | {required_count} required | {deferred_count} deferred

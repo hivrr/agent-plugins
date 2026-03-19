@@ -166,6 +166,16 @@ Display the report. Then offer:
 
 If they choose to create an issue: use the problem description as the title, the full report as the body, label it with `bug` and the classification.
 
+Display:
+```
+WORKFLOW COMPLETE
+Problem: {problem_description}
+Classification: {classification}
+Issue created: {issue_number || 'none'}
+```
+
+Return control to the user.
+
 ---
 
 ## Constraints
