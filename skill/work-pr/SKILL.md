@@ -81,9 +81,15 @@ Display: `Complexity: {simple|medium|complex}`
 
 ## Phase 5 — Checkout PR Branch
 
-Check if the working tree is clean with `git status --porcelain`. If there are uncommitted changes on the current branch, warn the user.
-
-Switch to the PR branch: `git checkout {branch_name}` (or `git switch {branch_name}`). Pull the latest: `git pull origin {branch_name}`.
+Run:
+```bash
+if [[ -z "$CLAUDE_SKILL_DIR" ]]; then
+  echo "ERROR: CLAUDE_SKILL_DIR is not set — cannot locate hivrr-pr-checkout.sh" >&2
+  exit 1
+fi
+bash "${CLAUDE_SKILL_DIR}/scripts/hivrr-pr-checkout.sh" --branch {branch_name}
+```
+If the script exits non-zero, surface the error and stop.
 
 Display: `Branch: {branch_name}`
 
@@ -125,13 +131,15 @@ When done, display: `Implement: complete | feedback addressed: {blocking_count} 
 
 ## Phase 8 — Verify
 
-**Run tests** (skip if only docs/config changed):
-- Look for test runners: check `package.json` scripts, `Makefile`, `pyproject.toml`, `pytest.ini`, `jest.config.*`
-- Run whatever you find. Fix failures — 3 attempts max per failure.
-
-**Run lint and type checks** (skip if only docs changed):
-- Look for linting config: `eslint`, `ruff`, `flake8`, `.eslintrc.*`, `pyproject.toml [tool.ruff]`
-- Fix any errors.
+Run:
+```bash
+if [[ -z "$CLAUDE_PLUGIN_ROOT" ]]; then
+  echo "ERROR: CLAUDE_PLUGIN_ROOT is not set — cannot locate hivrr-verify.sh" >&2
+  exit 1
+fi
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/hivrr-verify.sh"
+```
+Consume the printed summary line for the `Verify:` display. If the script exits non-zero, fix the failures and retry, up to 3 attempts.
 
 **Review your own changes:**
 - Does each piece of blocking feedback have a clear resolution?
