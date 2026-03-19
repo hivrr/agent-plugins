@@ -43,8 +43,13 @@ done
 [[ -z "$PR_NUMBER" ]] && { echo "ERROR: --pr is required" >&2; usage; }
 [[ -z "$REPO" ]] && { echo "ERROR: --repo is required" >&2; usage; }
 
+if ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
+  echo "ERROR: PR_NUMBER must be a positive integer, got: ${PR_NUMBER}" >&2
+  exit 1
+fi
+
 # ---------------------------------------------------------------------------
-# Phase 3 — Fetch PR details
+# Script Phase 1 — Fetch PR details
 # ---------------------------------------------------------------------------
 echo "Fetching PR #${PR_NUMBER} from ${REPO}..."
 
@@ -78,7 +83,7 @@ if [[ "$CHANGES_REQUESTED" -gt 0 ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# Phase 4 — Extract linked issues
+# Script Phase 2 — Extract linked issues
 # ---------------------------------------------------------------------------
 LINKED_ISSUES=()
 while IFS= read -r num; do
@@ -92,7 +97,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Phase 5 — Verify CI (skip if already merged)
+# Script Phase 3 — Verify CI (skip if already merged)
 # ---------------------------------------------------------------------------
 if [[ "$ALREADY_MERGED" == "false" ]]; then
   echo "Checking CI..."
@@ -118,7 +123,7 @@ if [[ "$ALREADY_MERGED" == "false" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# Phase 6 — Confirm (skip if --auto or already merged)
+# Script Phase 4 — Confirm (skip if --auto or already merged)
 # ---------------------------------------------------------------------------
 if [[ "$AUTO" == "false" && "$ALREADY_MERGED" == "false" ]]; then
   echo ""
@@ -140,7 +145,7 @@ if [[ "$AUTO" == "false" && "$ALREADY_MERGED" == "false" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# Phase 7 — Merge
+# Script Phase 5 — Merge
 # ---------------------------------------------------------------------------
 REMOTE_DELETED=false
 if [[ "$ALREADY_MERGED" == "false" ]]; then
@@ -163,13 +168,18 @@ if [[ "$ALREADY_MERGED" == "false" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# Phase 8 — Close linked issues that didn't auto-close
+# Script Phase 6 — Close linked issues that didn't auto-close
 # ---------------------------------------------------------------------------
 MANUALLY_CLOSED=0
 if [[ ${#LINKED_ISSUES[@]} -gt 0 ]]; then
-  sleep 3  # give GitHub's auto-close a moment to fire
   for ISSUE_NUM in "${LINKED_ISSUES[@]}"; do
-    ISSUE_STATE=$(gh issue view "$ISSUE_NUM" --repo "$REPO" --json state --jq '.state' 2>/dev/null || echo "UNKNOWN")
+    # Poll for auto-close — up to 5 attempts with 2s back-off
+    ISSUE_STATE="UNKNOWN"
+    for i in $(seq 1 5); do
+      ISSUE_STATE=$(gh issue view "$ISSUE_NUM" --repo "$REPO" --json state --jq '.state' 2>/dev/null || echo "UNKNOWN")
+      [[ "$ISSUE_STATE" == "CLOSED" ]] && break
+      sleep 2
+    done
     if [[ "$ISSUE_STATE" == "CLOSED" ]]; then
       echo "Issue #${ISSUE_NUM}: already closed"
     elif [[ "$ISSUE_STATE" == "OPEN" ]]; then
@@ -187,7 +197,7 @@ if [[ ${#LINKED_ISSUES[@]} -gt 0 ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# Phase 9 — Switch to base branch and pull
+# Script Phase 7 — Switch to base branch and pull
 # ---------------------------------------------------------------------------
 echo "Switching to ${BASE_BRANCH} and pulling..."
 git checkout "$BASE_BRANCH"
@@ -195,7 +205,7 @@ git pull origin "$BASE_BRANCH"
 echo "Main: updated"
 
 # ---------------------------------------------------------------------------
-# Phase 10 — Clean up branches
+# Script Phase 8 — Clean up branches
 # ---------------------------------------------------------------------------
 LOCAL_DELETED=false
 REMOTE_PRUNED=false

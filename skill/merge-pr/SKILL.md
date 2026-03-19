@@ -41,6 +41,10 @@ Display: `Input: PR #{pr_number} | auto: {auto_mode}`
 Invoke the merge script, passing the values extracted in Phase 2:
 
 ```
+if [[ -z "$CLAUDE_SKILL_DIR" ]]; then
+  echo "ERROR: CLAUDE_SKILL_DIR is not set — cannot locate hivrr-merge.sh" >&2
+  exit 1
+fi
 bash "${CLAUDE_SKILL_DIR}/scripts/hivrr-merge.sh" \
   --pr {pr_number} \
   --repo {repo_slug} \
