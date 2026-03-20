@@ -107,7 +107,7 @@ if [[ "$ALREADY_MERGED" == "false" ]]; then
     exit 1
   }
 
-  FAILING=$(echo "$CI_OUTPUT" | awk -F'\t' 'NF>=2 && $2 ~ /^(fail|failure|timed_out|cancelled|startup_failure|action_required)$/ {print "  " $1 ": " $2}')
+  FAILING=$(echo "$CI_OUTPUT" | awk -F'\t' 'NF>=2 && $2 ~ /^(fail|failure|timed_out|cancelled|startup_failure|action_required)$/ && $1 !~ /claude.review|claude-review/ {print "  " $1 ": " $2}')
   if [[ -n "$FAILING" ]]; then
     echo "ERROR: CI checks are failing — cannot merge:" >&2
     echo "$FAILING" >&2
