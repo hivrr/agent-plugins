@@ -139,9 +139,15 @@ If there are no findings at any level, say so explicitly in that section ("None.
 Always note at least one positive observation in the Summary.
 
 After composing the body, determine `review_event`:
+
+**For first reviews:**
 - **`APPROVE`** — zero BLOCKER findings **and** zero REQUIRED findings
 - **`REQUEST_CHANGES`** — one or more BLOCKER or REQUIRED findings
 - Deferred-only findings do not block approval
+
+**For follow-up reviews:**
+- **`REQUEST_CHANGES`** — any ⏳ Remaining items from the prior review at BLOCKER or REQUIRED level, or any 🆕 New findings exist
+- **`APPROVE`** — all prior BLOCKER/REQUIRED items are resolved (✅ Fixed) and no 🆕 New findings exist
 
 Store: `review_body`, `review_event`.
 
@@ -151,34 +157,30 @@ Display: `Review event: {APPROVE | REQUEST_CHANGES}`
 
 ## Phase 6 — Post the Review
 
-Post two things in order:
+Post two things in order. Write the review body to a single temp file shared by both steps:
+
+```bash
+TMPFILE=$(mktemp)
+cat > "$TMPFILE" <<'END_REVIEW_BODY'
+{review_body}
+END_REVIEW_BODY
+```
 
 **1. Formal GitHub review** via the GitHub API:
 
 ```bash
-TMPFILE=$(mktemp)
-cat > "$TMPFILE" <<'ENDBODY'
-{review_body}
-ENDBODY
-
 gh api "repos/{repo_owner}/{repo_name}/pulls/{pr_number}/reviews" \
   --method POST \
   --field event="{review_event}" \
   --field body=@"$TMPFILE"
-
-rm -f "$TMPFILE"
 ```
+
+If this call fails (e.g. HTTP 422 — self-review not allowed, or insufficient token scope), skip the formal review step and note the reason. Continue to step 2 regardless. Update the final Display to: `Posted: review comment on PR #{pr_number} (formal review skipped — {reason})`
 
 **2. Plain PR comment** for thread visibility:
 
 ```bash
-TMPFILE=$(mktemp)
-cat > "$TMPFILE" <<'ENDBODY'
-{review_body}
-ENDBODY
-
 gh pr comment {pr_number} --repo {repo_owner}/{repo_name} --body-file "$TMPFILE"
-
 rm -f "$TMPFILE"
 ```
 
