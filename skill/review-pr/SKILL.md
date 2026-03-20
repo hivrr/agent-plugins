@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: Review a pull request — fetches the diff, analyzes it, and posts a structured comment
+description: Review a pull request — fetches the diff, analyzes it, and posts a formal GitHub review (APPROVE/REQUEST_CHANGES) and a structured comment
 license: MIT
 compatibility: opencode
 ---
@@ -91,7 +91,7 @@ Classify each finding:
 
 ---
 
-## Phase 5 — Compose the Review
+## Phase 5 — Compose the Review and Determine Review Event
 
 Build the review body using this structure:
 
@@ -138,19 +138,53 @@ If there are no findings at any level, say so explicitly in that section ("None.
 
 Always note at least one positive observation in the Summary.
 
+After composing the body, determine `review_event`:
+
+**For first reviews:**
+- **`APPROVE`** — zero BLOCKER findings **and** zero REQUIRED findings
+- **`REQUEST_CHANGES`** — one or more BLOCKER or REQUIRED findings
+- Deferred-only findings do not block approval
+
+**For follow-up reviews:**
+- **`REQUEST_CHANGES`** — any ⏳ Remaining items from the prior review at BLOCKER or REQUIRED level, or any 🆕 New findings exist
+- **`APPROVE`** — all prior BLOCKER/REQUIRED items are resolved (✅ Fixed) and no 🆕 New findings exist
+
+Store: `review_body`, `review_event`.
+
+Display: `Review event: {APPROVE | REQUEST_CHANGES}`
+
 ---
 
 ## Phase 6 — Post the Review
 
-Post the composed review as a PR comment:
+Post two things in order. Write the review body to a single temp file shared by both steps:
 
+```bash
+TMPFILE=$(mktemp)
+cat > "$TMPFILE" <<'END_REVIEW_BODY'
+{review_body}
+END_REVIEW_BODY
 ```
-gh pr comment {pr_number} --repo {repo_owner}/{repo_name} --body "{review_body}"
+
+**1. Formal GitHub review** via the GitHub API:
+
+```bash
+gh api "repos/{repo_owner}/{repo_name}/pulls/{pr_number}/reviews" \
+  --method POST \
+  --field event="{review_event}" \
+  --field body=@"$TMPFILE"
 ```
 
-Use a heredoc or temp file to avoid shell escaping issues with the body content.
+If this call fails (e.g. HTTP 422 — self-review not allowed, or insufficient token scope), skip the formal review step and note the reason. Continue to step 2 regardless. Update the final Display to: `Posted: review comment on PR #{pr_number} (formal review skipped — {reason})`
 
-Display: `Posted: review comment on PR #{pr_number}`
+**2. Plain PR comment** for thread visibility:
+
+```bash
+gh pr comment {pr_number} --repo {repo_owner}/{repo_name} --body-file "$TMPFILE"
+rm -f "$TMPFILE"
+```
+
+Display: `Posted: formal {APPROVE | REQUEST_CHANGES} review + comment on PR #{pr_number}`
 
 ---
 
