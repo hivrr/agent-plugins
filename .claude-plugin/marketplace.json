@@ -25,11 +25,11 @@
         "./skill/work-pr"
       ],
       "commands": [
-        "./command/audit",
-        "./command/debug",
-        "./command/merge-pr",
-        "./command/work-issue",
-        "./command/work-pr"
+        "./command/audit.md",
+        "./command/debug.md",
+        "./command/merge-pr.md",
+        "./command/work-issue.md",
+        "./command/work-pr.md"
       ]
     },
     {
@@ -38,7 +38,7 @@
       "source": "./",
       "strict": false,
       "skills": ["./skill/brainstorm"],
-      "commands": ["./command/brainstorm"]
+      "commands": ["./command/brainstorm.md"]
     },
     {
       "name": "hivrr-planning",
@@ -46,7 +46,7 @@
       "source": "./",
       "strict": false,
       "skills": ["./skill/planning"],
-      "commands": ["./command/planning"]
+      "commands": ["./command/planning.md"]
     },
     {
       "name": "hivrr-review",
@@ -54,7 +54,7 @@
       "source": "./",
       "strict": false,
       "skills": ["./skill/review-pr"],
-      "commands": ["./command/review-pr"]
+      "commands": ["./command/review-pr.md"]
     },
     {
       "name": "hivrr-manager",
@@ -67,9 +67,9 @@
         "./skill/diagnose-failure"
       ],
       "commands": [
-        "./command/score-issues",
-        "./command/group-issues",
-        "./command/diagnose-failure"
+        "./command/score-issues.md",
+        "./command/group-issues.md",
+        "./command/diagnose-failure.md"
       ]
     }
   ]
