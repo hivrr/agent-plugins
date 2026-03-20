@@ -1,14 +1,36 @@
 {
-  "name": "hivrr-dev",
+  "name": "hivrr",
   "owner": { "name": "retroboot" },
   "metadata": {
     "description": "Hivrr Claude Plugin — Skills and commands for implementation, brainstorming, planning, and code review",
-    "version": "3.0.0"
+    "version": "1.0.2"
   },
   "plugins": [
     {
-      "name": "hivrr",
-      "description": "Implementation, brainstorming, planning, and code review skills",
+      "name": "dev",
+      "description": "Implementation and code review skills",
+      "source": "./",
+      "strict": true,
+      "skills": [
+        "./skill/core",
+        "./skill/debug",
+        "./skill/merge-pr",
+        "./skill/review-pr",
+        "./skill/wave",
+        "./skill/work-issue",
+        "./skill/work-pr"
+      ],
+      "commands": [
+        "./command/debug.md",
+        "./command/merge-pr.md",
+        "./command/review-pr.md",
+        "./command/work-issue.md",
+        "./command/work-pr.md"
+      ]
+    },
+    {
+      "name": "auditor",
+      "description": "Code audit skills — security, accessibility, performance, and tech debt",
       "source": "./",
       "strict": true,
       "skills": [
@@ -16,30 +38,28 @@
         "./skill/audit-accessibility",
         "./skill/audit-performance",
         "./skill/audit-security",
-        "./skill/audit-tech-debt",
-        "./skill/brainstorm",
-        "./skill/core",
-        "./skill/debug",
-        "./skill/merge-pr",
-        "./skill/planning",
-        "./skill/review-pr",
-        "./skill/wave",
-        "./skill/work-issue",
-        "./skill/work-pr"
+        "./skill/audit-tech-debt"
       ],
       "commands": [
-        "./command/audit.md",
-        "./command/brainstorm.md",
-        "./command/debug.md",
-        "./command/merge-pr.md",
-        "./command/planning.md",
-        "./command/review-pr.md",
-        "./command/work-issue.md",
-        "./command/work-pr.md"
+        "./command/audit.md"
       ]
     },
     {
-      "name": "manager",
+      "name": "planner",
+      "description": "Planning and brainstorming skills",
+      "source": "./",
+      "strict": true,
+      "skills": [
+        "./skill/brainstorm",
+        "./skill/planning"
+      ],
+      "commands": [
+        "./command/brainstorm.md",
+        "./command/planning.md"
+      ]
+    },
+    {
+      "name": "dispatcher",
       "description": "Manager utility skills — score, group, and diagnose issues for automated work allocation",
       "source": "./",
       "strict": true,
