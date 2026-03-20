@@ -1,14 +1,14 @@
 {
-  "name": "hivrr-claude-plugin",
+  "name": "hivrr-dev",
   "owner": { "name": "retroboot" },
   "metadata": {
     "description": "Hivrr Claude Plugin — Skills and commands for implementation, brainstorming, planning, and code review",
-    "version": "2.1.0"
+    "version": "3.0.0"
   },
   "plugins": [
     {
-      "name": "hivrr-skills",
-      "description": "Implementation and code workflow skills — audits, debugging, PR workflows, wave execution",
+      "name": "hivrr",
+      "description": "Implementation, brainstorming, planning, and code review skills",
       "source": "./",
       "strict": false,
       "skills": [
@@ -17,47 +17,29 @@
         "./skill/audit-performance",
         "./skill/audit-security",
         "./skill/audit-tech-debt",
+        "./skill/brainstorm",
         "./skill/core",
         "./skill/debug",
         "./skill/merge-pr",
+        "./skill/planning",
+        "./skill/review-pr",
         "./skill/wave",
         "./skill/work-issue",
         "./skill/work-pr"
       ],
       "commands": [
         "./command/audit.md",
+        "./command/brainstorm.md",
         "./command/debug.md",
         "./command/merge-pr.md",
+        "./command/planning.md",
+        "./command/review-pr.md",
         "./command/work-issue.md",
         "./command/work-pr.md"
       ]
     },
     {
-      "name": "hivrr-brainstorm",
-      "description": "Interactive brainstorming for product ideation and refinement",
-      "source": "./",
-      "strict": false,
-      "skills": ["./skill/brainstorm"],
-      "commands": ["./command/brainstorm.md"]
-    },
-    {
-      "name": "hivrr-planning",
-      "description": "Project planning and task decomposition",
-      "source": "./",
-      "strict": false,
-      "skills": ["./skill/planning"],
-      "commands": ["./command/planning.md"]
-    },
-    {
-      "name": "hivrr-review",
-      "description": "Pull request code review — fetches diff, analyzes, posts structured BLOCKER/REQUIRED/DEFERRED comment",
-      "source": "./",
-      "strict": false,
-      "skills": ["./skill/review-pr"],
-      "commands": ["./command/review-pr.md"]
-    },
-    {
-      "name": "hivrr-manager",
+      "name": "manager",
       "description": "Manager utility skills — score, group, and diagnose issues for automated work allocation",
       "source": "./",
       "strict": false,

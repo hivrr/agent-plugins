@@ -4,60 +4,18 @@ Skills and commands for implementation, brainstorming, planning, and code review
 
 ## Plugins
 
-### `hivrr-skills`
-Implementation and code workflow tools. Install this for day-to-day engineering work.
+### `hivrr`
+Full development toolkit — implementation, brainstorming, planning, and code review.
 
-**Skills:** `audit`, `audit-accessibility`, `audit-performance`, `audit-security`, `audit-tech-debt`, `core`, `debug`, `merge-pr`, `wave`, `work-issue`, `work-pr`
+**Skills:** `audit`, `audit-accessibility`, `audit-performance`, `audit-security`, `audit-tech-debt`, `brainstorm`, `core`, `debug`, `merge-pr`, `planning`, `review-pr`, `wave`, `work-issue`, `work-pr`
 
-**Commands:** `audit`, `debug`, `merge-pr`, `work-issue`, `work-pr`
-
----
-
-### `hivrr-brainstorm`
-Interactive brainstorming for product ideation and refinement.
-
-**Skills:** `brainstorm`
-
-**Commands:** `brainstorm`
+**Commands:** `audit`, `brainstorm`, `debug`, `merge-pr`, `planning`, `review-pr`, `work-issue`, `work-pr`
 
 ---
 
-### `hivrr-planning`
-Project planning and task decomposition.
-
-**Skills:** `planning`
-
-**Commands:** `planning`
-
----
-
-### `hivrr-review`
-Pull request code review — fetches diff, analyzes it, and posts a structured BLOCKER/REQUIRED/DEFERRED comment.
-
-**Skills:** `review-pr`
-
-**Commands:** `review-pr`
-
----
-
-### `hivrr-manager`
+### `manager`
 Manager utility skills for automated work allocation — scoring, grouping, and failure diagnosis.
 
 **Skills:** `score-issues`, `group-issues`, `diagnose-failure`
 
 **Commands:** `score-issues`, `group-issues`, `diagnose-failure`
-
----
-
-## Bundles
-
-Bundles let a plugin manager install the right combination of plugins for a given task type.
-
-| Bundle | Plugins included |
-|--------|-----------------|
-| `dev-in-a-box` | `hivrr-brainstorm`, `hivrr-planning`, `hivrr-review`, `hivrr-skills` |
-| `implementation-only` | `hivrr-review`, `hivrr-skills` |
-| `planning-suite` | `hivrr-brainstorm`, `hivrr-planning` |
-
-- A container running implementation work installs `implementation-only` — no brainstorm or planning tools in context, faster startup.
-- A user who wants everything installs `dev-in-a-box`.
