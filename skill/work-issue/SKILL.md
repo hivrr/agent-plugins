@@ -145,6 +145,10 @@ Write the code directly. Follow these principles:
 - Handle errors explicitly — don't let things fail silently
 - Write or update tests alongside the code, not after
 
+If you hit a blocker that cannot be resolved by reading the codebase:
+- Style, naming, missing tests → decide autonomously using existing conventions
+- Contradictory acceptance criteria or missing external credentials → surface the blocker clearly and stop; leave the branch intact
+
 For sequential multi-issue, process each issue fully through Phase 12 (Create PR) before starting the next one.
 
 When done, display: `Implement: complete | files changed: {count}`
