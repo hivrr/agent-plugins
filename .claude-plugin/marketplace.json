@@ -10,7 +10,7 @@
       "name": "hivrr",
       "description": "Implementation, brainstorming, planning, and code review skills",
       "source": "./",
-      "strict": false,
+      "strict": true,
       "skills": [
         "./skill/audit",
         "./skill/audit-accessibility",
@@ -42,7 +42,7 @@
       "name": "manager",
       "description": "Manager utility skills — score, group, and diagnose issues for automated work allocation",
       "source": "./",
-      "strict": false,
+      "strict": true,
       "skills": [
         "./skill/score-issues",
         "./skill/group-issues",
