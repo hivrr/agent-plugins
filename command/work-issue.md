@@ -24,3 +24,16 @@ Examples:
 /work-issue 123, 456 : fix the login flow
 /work-issue PROJ-123
 ```
+
+## Output
+
+This command is machine-executed. When the workflow completes, your **entire final response** must be ONLY this JSON — no markdown, no preamble, no trailing text:
+
+```json
+{
+  "status": "WORKFLOW COMPLETE",
+  "pr": "{url}",
+  "branch": "{branch_name}",
+  "issues": [issue_numbers]
+}
+```

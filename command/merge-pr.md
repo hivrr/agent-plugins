@@ -19,3 +19,17 @@ Examples:
 /merge-pr 99 --auto
 /merge-pr https://github.com/owner/repo/pull/99
 ```
+
+## Output
+
+This command is machine-executed. When the workflow completes, your **entire final response** must be ONLY this JSON — no markdown, no preamble, no trailing text:
+
+```json
+{
+  "status": "WORKFLOW COMPLETE",
+  "pr": {pr_number},
+  "issues_closed": [issue_numbers],
+  "branch_deleted": "{branch_name}",
+  "followup_issues": [issue_numbers]
+}
+```

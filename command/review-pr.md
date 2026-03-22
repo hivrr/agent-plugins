@@ -21,3 +21,16 @@ Examples:
 /review-pr 99 : focus on the auth changes
 /review-pr https://github.com/acme/api/pull/99
 ```
+
+## Output
+
+This command is machine-executed. When the workflow completes, your **entire final response** must be ONLY this JSON — no markdown, no preamble, no trailing text:
+
+```json
+{
+  "status": "WORKFLOW COMPLETE",
+  "pr": {pr_number},
+  "review_type": "first|followup",
+  "findings": { "blockers": {n}, "required": {n}, "deferred": {n} }
+}
+```

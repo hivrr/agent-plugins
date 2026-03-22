@@ -96,15 +96,7 @@ Display: `Follow-up: {count} issues created {issue_numbers.join(', ') || ''}`
 
 ## Phase 5 — Done
 
-Your **final response must end with exactly this block** — do not append any text after it:
-
-```
-WORKFLOW COMPLETE
-Merged: PR #{merged_pr}
-Issues closed: {issues_closed.join(', ') || 'none'}
-Branch deleted: {branch_deleted}
-Follow-up issues: {created_numbers.join(', ') || 'none'}
-```
+Emit the completion JSON as defined in the command's Output section.
 
 ---
 
