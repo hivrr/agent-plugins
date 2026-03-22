@@ -32,7 +32,8 @@ This command is machine-executed. When the workflow completes, your **entire fin
 ```json
 {
   "status": "WORKFLOW COMPLETE",
-  "pr": "{url}",
+  "pr": {pr_number},
+  "pr_url": "{url}",
   "branch": "{branch_name}",
   "issues": [issue_numbers]
 }

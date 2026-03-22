@@ -63,6 +63,8 @@ Read the diff carefully. For every finding, require:
 - A clear explanation of why it matters
 - A concrete fix (not "refactor this" — actual code or steps)
 
+If the PR introduces or modifies structured output schemas (JSON, API responses, event payloads), verify: field types are consistent across all instances of the same schema; no field carries different types in different code paths.
+
 Classify each finding:
 
 **🔴 BLOCKER** — must fix before merge:
@@ -77,6 +79,7 @@ Classify each finding:
 - Unclear or misleading logic
 - Incomplete implementations that leave the feature partially working
 - Code that violates stated repository conventions
+- Schema or interface contract violations — type mismatches, inconsistent field naming, or missing required fields across related outputs that would silently break a consumer
 
 **🟢 DEFERRED** — nice to have:
 - Refactoring suggestions

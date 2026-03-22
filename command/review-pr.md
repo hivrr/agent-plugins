@@ -30,7 +30,7 @@ This command is machine-executed. When the workflow completes, your **entire fin
 {
   "status": "WORKFLOW COMPLETE",
   "pr": {pr_number},
-  "review_type": "first|followup",
+  "review_type": "<first|followup>",
   "findings": { "blockers": {n}, "required": {n}, "deferred": {n} }
 }
 ```

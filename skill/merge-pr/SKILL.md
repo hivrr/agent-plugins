@@ -61,7 +61,7 @@ Include `--auto` only when `auto_mode` is true.
 HIVRR_MERGE_SUMMARY pr={pr_number} issues_closed={comma_list|none} branch_deleted={branch_name}
 ```
 
-Parse this line to extract `merged_pr`, `issues_closed` (list of numbers, may be empty), and `branch_deleted`. These values are used in the Phase 5 WORKFLOW COMPLETE display.
+Parse this line to extract `merged_pr`, `issues_closed` (list of numbers, may be empty), and `branch_deleted`. These values populate the Phase 5 completion JSON.
 
 ---
 
