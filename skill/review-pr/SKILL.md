@@ -161,12 +161,11 @@ Display: `Posted: review comment on PR #{pr_number}`
 
 ## Phase 7 — Done
 
-Display:
+Your **final response must end with exactly this block** — do not append any text after it:
+
 ```
 WORKFLOW COMPLETE
 PR: #{pr_number}
 Type: {first review | follow-up}
 Findings: {blocker_count} blockers | {required_count} required | {deferred_count} deferred
 ```
-
-Return control to the user.

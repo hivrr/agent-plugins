@@ -211,15 +211,14 @@ Display: `Push: {branch_name} → origin`
 
 ## Phase 13 — Done
 
-Display:
+Your **final response must end with exactly this block** — do not append any text after it:
+
 ```
 WORKFLOW COMPLETE
 PR: #{pr_number} updated
 Branch: {branch_name}
 Feedback addressed: {blocking_count} blocking, {recommended_count} recommended
 ```
-
-Return control to the user.
 
 ---
 

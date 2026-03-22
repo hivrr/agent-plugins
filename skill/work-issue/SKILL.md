@@ -225,15 +225,14 @@ Display: `PR: {url}`
 
 ## Phase 13 — Done
 
-Display:
+Your **final response must end with exactly this block** — do not append any text after it:
+
 ```
 WORKFLOW COMPLETE
 PR: {url}
 Branch: {branch_name}
 Issues: {issue_numbers}
 ```
-
-Return control to the user.
 
 ---
 
