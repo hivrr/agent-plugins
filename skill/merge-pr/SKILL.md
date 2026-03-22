@@ -61,7 +61,7 @@ Include `--auto` only when `auto_mode` is true.
 HIVRR_MERGE_SUMMARY pr={pr_number} issues_closed={comma_list|none} branch_deleted={branch_name}
 ```
 
-Parse this line to extract `merged_pr`, `issues_closed` (list of numbers, may be empty), and `branch_deleted`. These values are used in the Phase 5 WORKFLOW COMPLETE display.
+Parse this line to extract `merged_pr`, `issues_closed` (list of numbers, may be empty), and `branch_deleted`. These values populate the Phase 5 completion JSON.
 
 ---
 
@@ -96,15 +96,7 @@ Display: `Follow-up: {count} issues created {issue_numbers.join(', ') || ''}`
 
 ## Phase 5 — Done
 
-Your **final response must end with exactly this block** — do not append any text after it:
-
-```
-WORKFLOW COMPLETE
-Merged: PR #{merged_pr}
-Issues closed: {issues_closed.join(', ') || 'none'}
-Branch deleted: {branch_deleted}
-Follow-up issues: {created_numbers.join(', ') || 'none'}
-```
+Emit the completion JSON as defined in the command's Output section.
 
 ---
 

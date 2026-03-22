@@ -63,6 +63,8 @@ Read the diff carefully. For every finding, require:
 - A clear explanation of why it matters
 - A concrete fix (not "refactor this" — actual code or steps)
 
+If the PR introduces or modifies structured output schemas (JSON, API responses, event payloads), verify: field types are consistent across all instances of the same schema; no field carries different types in different code paths.
+
 Classify each finding:
 
 **🔴 BLOCKER** — must fix before merge:
@@ -77,6 +79,7 @@ Classify each finding:
 - Unclear or misleading logic
 - Incomplete implementations that leave the feature partially working
 - Code that violates stated repository conventions
+- Schema or interface contract violations — type mismatches, inconsistent field naming, or missing required fields across related outputs that would silently break a consumer
 
 **🟢 DEFERRED** — nice to have:
 - Refactoring suggestions
@@ -161,11 +164,4 @@ Display: `Posted: review comment on PR #{pr_number}`
 
 ## Phase 7 — Done
 
-Your **final response must end with exactly this block** — do not append any text after it:
-
-```
-WORKFLOW COMPLETE
-PR: #{pr_number}
-Type: {first review | follow-up}
-Findings: {blocker_count} blockers | {required_count} required | {deferred_count} deferred
-```
+Emit the completion JSON as defined in the command's Output section.
