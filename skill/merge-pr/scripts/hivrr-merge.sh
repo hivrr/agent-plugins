@@ -103,8 +103,14 @@ if [[ "$ALREADY_MERGED" == "false" ]]; then
   echo "Checking CI..."
   # gh pr checks has no --json flag; output is tab-separated: name, state, duration, url
   CI_OUTPUT=$(gh pr checks "$PR_NUMBER" --repo "$REPO" 2>&1) || {
-    echo "ERROR: Failed to fetch CI checks: ${CI_OUTPUT}" >&2
-    exit 1
+    # gh exits non-zero when no checks are configured — treat that as "no checks"
+    if echo "$CI_OUTPUT" | grep -qiE 'no checks|no check runs'; then
+      echo "CI: no checks configured — continuing"
+      CI_OUTPUT=""
+    else
+      echo "ERROR: Failed to fetch CI checks: ${CI_OUTPUT}" >&2
+      exit 1
+    fi
   }
 
   FAILING=$(echo "$CI_OUTPUT" | awk -F'\t' 'NF>=2 && $2 ~ /^(fail|failure|timed_out|cancelled|startup_failure|action_required)$/ && $1 !~ /claude.review|claude-review/ {print "  " $1 ": " $2}')
