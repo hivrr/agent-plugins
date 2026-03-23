@@ -1,9 +1,9 @@
 {
-  "name": "agent-plugin",
-  "owner": { "name": "retroboot" },
+  "name": "agent-plugins",
+  "owner": { "name": "hivrr" },
   "metadata": {
     "description": "Hivrr Agent Plugin — Skills and commands for implementation, brainstorming, planning, and code review",
-    "version": "1.0.2"
+    "version": "1.0.5"
   },
   "plugins": [
     {
