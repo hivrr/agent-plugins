@@ -1,8 +1,8 @@
 {
-  "name": "hivrr",
+  "name": "agent-plugin",
   "owner": { "name": "retroboot" },
   "metadata": {
-    "description": "Hivrr Claude Plugin — Skills and commands for implementation, brainstorming, planning, and code review",
+    "description": "Hivrr Agent Plugin — Skills and commands for implementation, brainstorming, planning, and code review",
     "version": "1.0.2"
   },
   "plugins": [
