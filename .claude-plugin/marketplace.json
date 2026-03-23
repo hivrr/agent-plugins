@@ -1,5 +1,5 @@
 {
-  "name": "agent-plugins",
+  "name": "hivrr-agent-plugins",
   "owner": { "name": "hivrr" },
   "metadata": {
     "description": "Hivrr Agent Plugin — Skills and commands for implementation, brainstorming, planning, and code review",
