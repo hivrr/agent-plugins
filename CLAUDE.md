@@ -19,3 +19,10 @@ Manager utility skills for automated work allocation — scoring, grouping, and 
 **Skills:** `score-issues`, `group-issues`, `diagnose-failure`
 
 **Commands:** `score-issues`, `group-issues`, `diagnose-failure`
+
+---
+
+### `data-platform`
+Full data platform skills — covers the complete stack from ingestion and pipelines to ML, LLMs, and dashboards.
+
+**Skills:** `senior-data-scientist`, `senior-data-engineer`, `senior-data-analyst`, `senior-ai-engineer`, `snowflake`
