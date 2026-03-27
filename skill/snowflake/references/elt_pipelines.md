@@ -229,7 +229,7 @@ FROM TABLE(INFORMATION_SCHEMA.DYNAMIC_TABLES())
 WHERE schema_name = 'GOLD';
 
 -- Pipeline health summary
-SELECT 'Tasks running'  AS check, COUNT_IF(state = 'started')  AS count FROM TABLE(INFORMATION_SCHEMA.TASKS())
+SELECT 'Tasks running'  AS check, COUNT_IF(state = 'started')  AS count FROM INFORMATION_SCHEMA.TASKS
 UNION ALL
 SELECT 'Tasks failed (24h)', COUNT(*) FROM TABLE(INFORMATION_SCHEMA.TASK_HISTORY())
   WHERE state = 'FAILED' AND scheduled_time >= DATEADD(hours, -24, CURRENT_TIMESTAMP())

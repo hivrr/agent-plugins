@@ -10,9 +10,15 @@ Production-grade async API with health checks, timeouts, and cost tracking.
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
+from openai import RateLimitError
 import asyncio
 import time
 import logging
+
+# Custom exceptions used throughout this module
+class RateLimitExceeded(Exception): pass
+class CircuitOpenError(Exception): pass
+class ServiceUnavailableError(Exception): pass
 
 app = FastAPI(title="LLM API", version="1.0.0")
 logger = logging.getLogger(__name__)

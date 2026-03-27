@@ -154,14 +154,17 @@ def search_knowledge_base(query: str, max_results: int = 5) -> str:
 
 @tool
 def execute_python(code: str) -> str:
-    """Execute Python code in a sandboxed environment and return the output.
-    Use for data analysis, calculations, or generating charts."""
-    # ALWAYS sandbox code execution
+    """Execute Python code and return the output.
+    Use for data analysis, calculations, or generating charts.
+
+    WARNING: This example is NOT sandboxed. For production use, run inside
+    a proper sandbox — e.g. Docker with --network none --read-only --memory 256m,
+    or a dedicated sandboxing tool (nsjail, firejail, gVisor). Restricting PATH
+    alone does not prevent file access, network calls, or subprocess spawning."""
     import subprocess
     result = subprocess.run(
         ["python", "-c", code],
-        capture_output=True, text=True, timeout=30,
-        env={"PATH": "/usr/bin"}  # Restricted environment
+        capture_output=True, text=True, timeout=30
     )
     return result.stdout or result.stderr
 ```

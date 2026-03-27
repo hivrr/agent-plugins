@@ -150,6 +150,13 @@ SHOW GRANTS TO USER svc_pipeline;
 - [ ] Stale stream alert configured
 
 ```sql
+-- Prerequisite: create email notification integration once per account
+-- (requires ACCOUNTADMIN; run once before creating alerts)
+CREATE NOTIFICATION INTEGRATION IF NOT EXISTS prod_notifications
+  TYPE = EMAIL
+  ENABLED = TRUE
+  ALLOWED_RECIPIENTS = ('oncall@company.com');
+
 -- Task failure alert (fires if any task failed in the last 10 minutes)
 CREATE OR REPLACE ALERT PROD_DW.UTILITY.TASK_FAILURE_ALERT
   WAREHOUSE = PROD_ANALYTICS_WH
@@ -214,21 +221,21 @@ ALTER DATABASE PROD_DW ENABLE REPLICATION TO ACCOUNTS myorg.secondary_account;
 Run this before and after any deployment to compare baseline state.
 
 ```sql
-SELECT 'Warehouses total'         AS check, COUNT(*) AS count FROM TABLE(INFORMATION_SCHEMA.WAREHOUSES())
+SELECT 'Warehouses total'         AS check, COUNT(*) AS count FROM INFORMATION_SCHEMA.WAREHOUSES
 UNION ALL
-SELECT 'Warehouses running',       COUNT_IF(state = 'STARTED') FROM TABLE(INFORMATION_SCHEMA.WAREHOUSES())
+SELECT 'Warehouses running',       COUNT_IF(state = 'STARTED') FROM INFORMATION_SCHEMA.WAREHOUSES
 UNION ALL
-SELECT 'Tasks total',              COUNT(*) FROM TABLE(INFORMATION_SCHEMA.TASKS())
+SELECT 'Tasks total',              COUNT(*) FROM INFORMATION_SCHEMA.TASKS
 UNION ALL
-SELECT 'Tasks running',            COUNT_IF(state = 'started') FROM TABLE(INFORMATION_SCHEMA.TASKS())
+SELECT 'Tasks running',            COUNT_IF(state = 'started') FROM INFORMATION_SCHEMA.TASKS
 UNION ALL
 SELECT 'Streams total',            COUNT(*) FROM INFORMATION_SCHEMA.STREAMS
 UNION ALL
 SELECT 'Stale streams',            COUNT_IF(stale = TRUE) FROM INFORMATION_SCHEMA.STREAMS
 UNION ALL
-SELECT 'Pipes (auto-ingest)',      COUNT_IF(is_autoingest_enabled = 'true') FROM TABLE(INFORMATION_SCHEMA.PIPES())
+SELECT 'Pipes (auto-ingest)',      COUNT_IF(is_autoingest_enabled = 'true') FROM INFORMATION_SCHEMA.PIPES
 UNION ALL
-SELECT 'Alerts running',           COUNT_IF(state = 'started') FROM TABLE(INFORMATION_SCHEMA.ALERTS());
+SELECT 'Alerts running',           COUNT_IF(state = 'started') FROM INFORMATION_SCHEMA.ALERTS;
 ```
 
 ---
