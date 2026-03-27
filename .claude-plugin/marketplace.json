@@ -3,7 +3,7 @@
   "owner": { "name": "hivrr" },
   "metadata": {
     "description": "Hivrr Agent Plugin — Skills and commands for implementation, brainstorming, planning, and code review",
-    "version": "1.0.5"
+    "version": "1.0.6"
   },
   "plugins": [
     {
@@ -73,6 +73,20 @@
         "./command/group-issues.md",
         "./command/diagnose-failure.md"
       ]
+    },
+    {
+      "name": "data-platform",
+      "description": "Full data platform skills — data science, engineering, analysis, AI engineering, and Snowflake. Covers the complete stack from ingestion and pipelines to ML, LLMs, and dashboards.",
+      "source": "./",
+      "strict": true,
+      "skills": [
+        "./skill/senior-data-scientist",
+        "./skill/senior-data-engineer",
+        "./skill/senior-data-analyst",
+        "./skill/senior-ai-engineer",
+        "./skill/snowflake"
+      ],
+      "commands": []
     }
   ]
 }
