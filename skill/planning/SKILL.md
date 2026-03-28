@@ -517,7 +517,8 @@ Plan doc:  docs/plans/{filename}.md
 GitHub:    {issue_numbers or 'plan-only mode — no issues created'}
 Linear:    {linear_ids or 'not configured'}
 
-Next: /work-issue {first_issue_number}
+Next: /work-issue {first_issue_number}    ← standard mode
+Next: review docs/plans/{filename}.md     ← plan-only mode (no issues created)
 ```
 
 Return control to the user.

@@ -6,7 +6,7 @@ How to dispatch a plan review subagent and interpret its output.
 
 ## When to Run
 
-Always run after writing the plan document (Phase 9), before the user approval checkpoint. The reviewer catches what the author misses — especially missing requirements, vague steps, and type inconsistencies.
+Always run after writing the plan document (Phase 8), before the user approval checkpoint (Phase 10). The reviewer catches what the author misses — especially missing requirements, vague steps, and type inconsistencies.
 
 ---
 
