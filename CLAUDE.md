@@ -9,7 +9,7 @@ Full development toolkit — implementation, brainstorming, planning, and code r
 
 **Skills:** `audit`, `audit-accessibility`, `audit-performance`, `audit-security`, `audit-tech-debt`, `brainstorm`, `core`, `debug`, `merge-pr`, `planning`, `review-pr`, `wave`, `work-issue`, `work-pr`
 
-**Commands:** `audit`, `brainstorm`, `debug`, `merge-pr`, `planning`, `review-pr`, `work-issue`, `work-pr`
+**Commands:** `audit`, `brainstorm`, `debug`, `merge-pr`, `planning`, `review-pr`, `work-issue`, `work-pr`, `write-plan`
 
 ---
 

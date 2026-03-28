@@ -1,13 +1,13 @@
 ---
 name: planning
-description: Triage a feature or problem into sized, actionable GitHub and Linear issues
+description: Triage a feature or problem into sized, actionable GitHub and Linear issues — then write a comprehensive implementation plan with TDD tasks, complexity-aware blueprints, UI/UX coverage, and an automated plan review.
 license: MIT
 compatibility: opencode
 ---
 
 # Planning
 
-Transform a feature request, problem description, or rough idea into a concrete set of sized, actionable issues ready for implementation. Creates issues in GitHub and Linear (if configured), informed by the project's existing memory and architecture.
+Transform a feature request, problem description, or rough idea into a concrete set of sized, actionable issues and a comprehensive implementation plan ready for execution. Creates issues in GitHub and Linear (if configured), informed by the project's existing memory and architecture.
 
 Keep moving through phases. Only stop at the marked checkpoint.
 
@@ -72,7 +72,7 @@ Log a warning if falling back: `WARNING: Memory unavailable, using local file fa
 The input can be:
 - A freeform description: "add email verification to signup"
 - A problem statement: "users keep losing their session after 5 minutes"
-- A reference to an existing GitHub issue: `#123`
+- A reference to an existing GitHub issue: `#123` or multiple: `#123 #124`
 - A vague concept: "improve the onboarding flow"
 - No input — open triage session
 
@@ -80,8 +80,16 @@ Extract:
 - `topic` — what this is about in plain terms
 - `source` — freeform, issue ref, or empty
 - `scope_hint` — any explicit size or priority signal in the input
+- `plan_only` — true if `--plan-only` flag is present (skip issue triage and creation; only write the plan doc)
 
-If the input is an existing issue reference, fetch it: `gh issue view {number} --json title,body,labels`.
+If the input contains one or more issue references, fetch each one:
+```bash
+# For each number found in the input:
+gh issue view {number} --json title,body,labels
+```
+Aggregate the results — all fetched issues inform the topic, scope, and acceptance criteria.
+
+If `--plan-only` is set, display: `Mode: plan-only — will write plan doc without creating issues`
 
 ---
 
@@ -91,13 +99,26 @@ Before proposing anything, understand what already exists.
 
 - Read the relevant areas of the codebase related to the topic
 - Check for existing open issues that overlap: `gh issue list --state open --limit 50 --json number,title,labels`
-- Look for existing patterns and conventions in the codebase
+- Look for existing patterns, conventions, APIs, and test structures in the codebase
+
+Build an **Allowed APIs list**: note the actual functions, types, test helpers, and conventions found, citing exact file paths. This prevents inventing APIs that don't exist when writing the plan later.
+
+Example format:
+```
+Allowed APIs:
+- auth.createSession(userId, ttl) — src/auth/session.ts:42
+- db.users.findById(id) — src/db/users.ts:18
+- Test helper: createTestUser(overrides) — tests/helpers.ts:5
+- Convention: all handlers return Result<T, AppError> — src/types.ts:12
+```
 
 You are not planning yet — you are building enough understanding to plan well.
 
 ---
 
 ## Phase 5 — Clarify
+
+Skip this phase if `--plan-only` is set (the work is already scoped).
 
 ### Interactivity Model
 
@@ -141,7 +162,25 @@ Wait for answers before continuing.
 
 ---
 
-## Phase 6 — Draft the Breakdown
+## Phase 6 — Complexity Assessment
+
+Classify the work as one of three tiers. This controls the depth of the plan document.
+
+| Tier | Criteria | Plan depth |
+|------|----------|------------|
+| **Simple** | Single file/component, <1 day, no cross-cutting concerns | Brief plan: goal + key files + issue links |
+| **Medium** | Multiple files, 1-3 days, single PR | Full plan: TDD task breakdown with actual code and commands |
+| **Complex** | Multiple subsystems, multiple PRs, >3 days, or cross-team dependencies | Blueprint: multi-PR dependency graph + per-PR plan summaries |
+
+See [references/blueprint.md](references/blueprint.md) for detailed Complex classification criteria.
+
+Display: `Complexity: {tier} — {one-line rationale}`
+
+---
+
+## Phase 7 — Draft the Breakdown
+
+**If `--plan-only` mode:** Skip the issue proposal. Only produce the file structure map (used in Phase 8). Jump directly to that section below.
 
 Propose a set of issues. For each issue:
 - **Title**: concise, action-oriented ("Add email verification token generation")
@@ -155,18 +194,202 @@ Rules:
 - Prefer fewer, clearer issues over many small ones
 - Each issue should be implementable independently where possible
 
+**For Medium and Complex:** also produce a **file structure map** before writing any tasks:
+
+```
+FILE STRUCTURE
+──────────────
+Create:  src/auth/token.ts         — email verification token generation and validation
+Modify:  src/auth/signup.ts:45-80  — add verification step to signup handler
+Modify:  src/db/schema.ts          — add email_tokens table migration
+Create:  tests/auth/token.test.ts  — token generation and validation tests
+```
+
+Each file has one clear responsibility. Lock in decomposition decisions here — they govern all tasks that follow.
+
 ---
 
-## Phase 7 — Checkpoint: User Approval
+## Phase 8 — Write the Plan Document
 
-### Live terminal mode
+Save to: `docs/plans/YYYY-MM-DD-<feature-name>.md`
+(If `docs/plans/` does not exist, create it.)
+
+See [references/plan-writing.md](references/plan-writing.md) for the full task structure and no-placeholders rules.
+
+### Plan Document Header (all tiers)
+
+```markdown
+# [Feature Name] Implementation Plan
+
+> **For agentic workers:** Use the `work-issue` skill to implement this plan task-by-task.
+> Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** [One sentence describing what this builds]
+
+**Architecture:** [2-3 sentences about approach]
+
+**Tech Stack:** [Key technologies/libraries used]
+
+---
+```
+
+### Simple tier
+Brief plan doc: goal, architecture, key files, linked issues. No TDD task breakdown. 1-2 pages.
+
+### Medium tier
+Full implementation plan with TDD task breakdown. For each task:
+
+```markdown
+### Task N: [Component Name]
+
+**Files:**
+- Create: `exact/path/to/file.ts`
+- Modify: `exact/path/to/existing.ts:45-80`
+- Test: `tests/exact/path/to/test.ts`
+
+- [ ] **Step 1: Write the failing test**
+
+  ```typescript
+  // tests/auth/token.test.ts
+  describe('generateVerificationToken', () => {
+    it('returns a 32-byte hex string', () => {
+      const token = generateVerificationToken()
+      expect(token).toMatch(/^[a-f0-9]{64}$/)
+    })
+  })
+  ```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+  Run: `npm test tests/auth/token.test.ts`
+  Expected: FAIL — "generateVerificationToken is not defined"
+
+- [ ] **Step 3: Write minimal implementation**
+
+  ```typescript
+  // src/auth/token.ts
+  import { randomBytes } from 'crypto'
+
+  export function generateVerificationToken(): string {
+    return randomBytes(32).toString('hex')
+  }
+  ```
+
+- [ ] **Step 4: Run test to verify it passes**
+
+  Run: `npm test tests/auth/token.test.ts`
+  Expected: PASS
+
+- [ ] **Step 5: Commit**
+
+  ```bash
+  git add tests/auth/token.test.ts src/auth/token.ts
+  git commit -m "feat: add email verification token generation"
+  ```
+```
+
+Apply the Allowed APIs list from Phase 4 — every type, function, and import used in code blocks must cite a source from the codebase or be defined in this plan.
+
+**No-placeholders pass:** Before moving on, scan the draft for these red flags and fix every one:
+- "TBD", "TODO", "implement later", "fill in details"
+- "Add appropriate error handling" / "add validation" / "handle edge cases"
+- "Write tests for the above" without actual test code
+- "Similar to Task N" without repeating the actual code
+- References to types or functions not defined in any task
+
+### Complex tier
+
+Lead with a **Blueprint section** (see [references/blueprint.md](references/blueprint.md)):
+
+```markdown
+## Blueprint
+
+**Steps:** 4 | **Parallel:** Steps 2 and 3
+
+Step 1 ──> Step 2 ──> Step 4
+            └──> Step 3 (PARALLEL) ──┘
+
+### Step 1: [Name] — [branch: feat/step-1]
+
+**Context brief:** [Everything a fresh agent needs to execute this step cold. Include relevant architecture decisions, file locations, and constraints — no prior context assumed.]
+
+**Exit criteria:** [How you know this step is done]
+
+**Tasks:**
+- [ ] ...
+
+**Verification:**
+Run: `{exact command}`
+Expected: `{expected output}`
+```
+
+Then include a per-step plan summary (Medium-depth TDD tasks for each step).
+
+**Sprint capacity (optional):** If the user provided team size and sprint length, include:
+
+```
+Capacity estimate: {team_size} engineers × {days} days × 6h/day × 0.7 focus = {points} available
+Estimated: {n} story points ({XS=1, S=2, M=3, L=5})
+```
+
+### UI/UX section (conditional)
+
+Trigger: any issue body or user description contains keywords like: UI, UX, frontend, page, screen, component, dashboard, form, modal, button, design, layout, responsive, user interface.
+
+Append a **UX section** to the plan document (see [references/ux-checklist.md](references/ux-checklist.md)):
+
+```markdown
+## UI/UX Plan
+
+### Information Hierarchy
+[What the user sees first, second, third on each affected screen]
+
+### Interaction States
+| Feature | Loading | Empty | Error | Success | Partial |
+|---------|---------|-------|-------|---------|---------|
+| [feature] | [spec] | [spec] | [spec] | [spec] | [spec] |
+
+### Responsive Behavior
+[Intentional layout decisions per viewport — not "stacks on mobile"]
+
+### Accessibility
+[Keyboard nav, ARIA landmarks, touch targets, contrast requirements]
+```
+
+---
+
+## Phase 9 — Plan Review
+
+Dispatch a subagent using the reviewer template from [references/plan-review.md](references/plan-review.md).
+
+The subagent receives the plan file path and the original spec/issues as context. It checks:
+- **Completeness**: every requirement/issue has a task
+- **Spec alignment**: no scope creep, no missing requirements
+- **Task decomposition**: steps are actionable, have clear done criteria
+- **Buildability**: an engineer could follow this without getting stuck
+- **No-placeholders**: TBD/TODO/vague steps flagged
+- **Type consistency**: function names and signatures match across all tasks
+
+The reviewer outputs: `Status: Approved | Issues Found` with a list of specific issues (task ref + why it matters) and advisory recommendations.
+
+**If Issues Found:** fix them in the plan doc and re-save before continuing.
+
+**If the subagent fails or returns no output:** log a warning and continue — `Plan Review: skipped — subagent error`.
+
+Display: `Plan Review: {status} | {n} issues found and fixed`
+
+---
+
+## Phase 10 — Checkpoint: User Approval
 
 **Stop here.** Present the proposed breakdown to the user:
 
 ```
 PLAN DRAFT
 ──────────
+Complexity: {tier}
 Topic: {topic}
+Plan doc: docs/plans/{filename}.md
 
 Issues:
   1. [{size}] {title}
@@ -183,6 +406,8 @@ Approve, adjust, or cancel?
 ```
 
 Do not proceed until the user explicitly approves or provides changes. If they provide changes, revise the draft and show it again. Do not create any issues until approved.
+
+**If `--plan-only` mode:** Skip this checkpoint after plan review — the plan doc is already saved. Display: `Plan saved to {path}. Review it and run /work-issue when ready.`
 
 ### Container mode
 
@@ -204,7 +429,9 @@ Wait for the answer before proceeding. If "adjust", revise and re-post. If "canc
 
 ---
 
-## Phase 8 — Create GitHub Issues
+## Phase 11 — Create GitHub Issues
+
+Skip if `--plan-only` mode.
 
 For each approved issue, create it with `gh issue create`:
 
@@ -221,7 +448,9 @@ Display each as it's created: `Created: #{number} — {title}`
 
 ---
 
-## Phase 9 — Create Linear Issues (if configured)
+## Phase 12 — Create Linear Issues (if configured)
+
+Skip if `--plan-only` mode.
 
 Check for Linear configuration by looking for `LINEAR_API_KEY` in the environment or a `.linear.yaml` file in the project root.
 
@@ -253,7 +482,7 @@ Display each: `Linear: {identifier} — {title}`
 
 ---
 
-## Phase 10 — Write to Memory
+## Phase 13 — Write to Memory
 
 After issue creation, persist the planning output to memory before exiting.
 
@@ -263,6 +492,7 @@ session/{session_uuid}/prd         = full PRD text
 session/{session_uuid}/plan        = [{ task_id, title, repo,
                                         dependencies, acceptance_criteria,
                                         github_issue_url }]
+session/{session_uuid}/plan_doc    = path to plan document file
 session/{session_uuid}/decisions   = architectural choices made during decomposition
 session/{session_uuid}/constraints = discovered constraints and non-goals
 session/{session_uuid}/phase       = "executing"
@@ -275,18 +505,20 @@ Do not fail if memory write fails — log the warning and continue.
 
 ---
 
-## Phase 11 — Done
+## Phase 14 — Done
 
 Display:
 
 ```
 WORKFLOW COMPLETE
 ─────────────────
-Session: {session_uuid}
-GitHub: {issue_numbers}
-Linear: {linear_ids or 'not configured'}
+Session:   {session_uuid}
+Plan doc:  docs/plans/{filename}.md
+GitHub:    {issue_numbers or 'plan-only mode — no issues created'}
+Linear:    {linear_ids or 'not configured'}
 
-Start with: /work-issue {first_issue_number}
+Next: /work-issue {first_issue_number}    ← standard mode
+Next: review docs/plans/{filename}.md     ← plan-only mode (no issues created)
 ```
 
 Return control to the user.
