@@ -3,7 +3,7 @@
   "owner": { "name": "hivrr" },
   "metadata": {
     "description": "Hivrr Agent Plugin — Skills and commands for implementation, brainstorming, planning, and code review",
-    "version": "1.0.6"
+    "version": "1.0.7"
   },
   "plugins": [
     {

@@ -15,6 +15,8 @@ You have a query runner available for ad-hoc PostgreSQL queries. Use it to test 
 
 ## Running Queries
 
+> **Note:** Examples below use `.claude/skills/postgres-query/query.mjs` — the default Claude Code install path. If your plugin host installs to a different location, adjust the path accordingly.
+
 ```bash
 node .claude/skills/postgres-query/query.mjs "SELECT * FROM \"User\" LIMIT 5"
 ```
@@ -56,7 +58,7 @@ node .claude/skills/postgres-query/query.mjs --json "SELECT id, username FROM \"
 ## Safety Features
 
 - **Read-only by default**: Uses `DATABASE_REPLICA_URL` to prevent accidental writes
-- **Write protection**: Blocks `INSERT`/`UPDATE`/`DELETE`/`DROP` unless `--writable` flag is used
+- **Write protection**: Blocks `INSERT`/`UPDATE`/`DELETE`/`DROP`/`ALTER`/`TRUNCATE`/`CREATE`/`GRANT`/`REVOKE`/`COPY`/`DO`/`CALL`/`WITH` (CTE-wrapped writes) unless `--writable` flag is used
 - **Explicit permission required**: Before using `--writable`, you MUST ask the user for permission
 
 ### When to Use `--writable`

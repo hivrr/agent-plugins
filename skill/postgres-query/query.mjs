@@ -46,7 +46,12 @@ function loadEnv() {
         const eqIndex = trimmed.indexOf('=');
         if (eqIndex === -1) continue;
         const key = trimmed.slice(0, eqIndex);
-        const value = trimmed.slice(eqIndex + 1);
+        let value = trimmed.slice(eqIndex + 1);
+        // Strip surrounding single or double quotes (standard .env convention)
+        if ((value.startsWith('"') && value.endsWith('"')) ||
+            (value.startsWith("'") && value.endsWith("'"))) {
+          value = value.slice(1, -1);
+        }
         if (!process.env[key]) {
           process.env[key] = value;
         }
@@ -89,18 +94,25 @@ for (let i = 0; i < args.length; i++) {
     quiet = true;
   } else if (arg === '--timeout' || arg === '-t') {
     const val = args[++i];
-    if (!val || isNaN(parseInt(val, 10))) {
-      console.error('Error: --timeout requires a number (seconds)');
+    const parsed = parseInt(val, 10);
+    if (!val || isNaN(parsed) || parsed < 1) {
+      console.error('Error: --timeout requires a positive integer (seconds, minimum 1)');
       process.exit(1);
     }
-    timeoutSeconds = parseInt(val, 10);
+    timeoutSeconds = parsed;
   } else if (arg === '--file' || arg === '-f') {
     const filePath = args[++i];
     if (!filePath) {
       console.error('Error: --file requires a path argument');
       process.exit(1);
     }
-    query = readFileSync(resolve(process.cwd(), filePath), 'utf-8');
+    const safeBase = resolve(process.cwd());
+    const resolvedPath = resolve(safeBase, filePath);
+    if (!resolvedPath.startsWith(safeBase + '/') && resolvedPath !== safeBase) {
+      console.error('Error: --file path must be within the current working directory');
+      process.exit(1);
+    }
+    query = readFileSync(resolvedPath, 'utf-8');
   } else if (!arg.startsWith('-')) {
     query = arg;
   }
@@ -137,11 +149,31 @@ if (!connectionString) {
 
 // Safety check for writable operations
 if (!writable) {
-  const upperQuery = query.toUpperCase().trim();
-  const writeOps = ['INSERT', 'UPDATE', 'DELETE', 'DROP', 'ALTER', 'TRUNCATE', 'CREATE'];
+  // Strip leading block comments (/* ... */) and line comments (-- ...) before checking
+  let strippedQuery = query.trim();
+  // Remove leading block comments
+  while (strippedQuery.startsWith('/*')) {
+    const end = strippedQuery.indexOf('*/');
+    if (end === -1) break;
+    strippedQuery = strippedQuery.slice(end + 2).trim();
+  }
+  // Remove leading line comments
+  while (strippedQuery.startsWith('--')) {
+    const end = strippedQuery.indexOf('\n');
+    if (end === -1) { strippedQuery = ''; break; }
+    strippedQuery = strippedQuery.slice(end + 1).trim();
+  }
+  const upperQuery = strippedQuery.toUpperCase();
+  // Include WITH to block CTE-wrapped write statements (e.g. WITH x AS (DELETE ...) SELECT ...)
+  // Include GRANT/REVOKE (privilege escalation), COPY (OS command risk), DO/CALL (arbitrary execution)
+  const writeOps = [
+    'INSERT', 'UPDATE', 'DELETE', 'DROP', 'ALTER', 'TRUNCATE', 'CREATE',
+    'GRANT', 'REVOKE', 'COPY', 'DO', 'CALL', 'WITH',
+  ];
   for (const op of writeOps) {
-    if (upperQuery.startsWith(op)) {
-      console.error(`Error: Write operation detected (${op}). Use --writable flag to confirm.`);
+    if (upperQuery.startsWith(op + ' ') || upperQuery.startsWith(op + '\n') ||
+        upperQuery.startsWith(op + '\t') || upperQuery === op) {
+      console.error(`Error: Write or privileged operation detected (${op}). Use --writable flag to confirm.`);
       console.error('This requires explicit user permission as it modifies the database.');
       process.exit(1);
     }
@@ -151,7 +183,7 @@ if (!writable) {
 async function main() {
   const client = new Client({
     connectionString,
-    ssl: { rejectUnauthorized: false },
+    ssl: { rejectUnauthorized: true },
     statement_timeout: timeoutSeconds * 1000,
     query_timeout: timeoutSeconds * 1000,
   });
@@ -177,7 +209,8 @@ async function main() {
         fields: result.fields?.map(f => f.name)
       }, null, 2));
     } else if (explain) {
-      console.log(result.rows.map(r => r['QUERY PLAN']).join('\n'));
+      const planKey = result.fields[0].name;
+      console.log(result.rows.map(r => r[planKey]).join('\n'));
       if (!quiet) {
         console.error(`\nQuery time: ${elapsed}ms`);
       }
