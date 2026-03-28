@@ -46,7 +46,7 @@
     },
     {
       "name": "planner",
-      "description": "Planning and brainstorming skills",
+      "description": "Planning and brainstorming skills — from open-ended thinking sessions to comprehensive implementation plans with TDD tasks, blueprints, and automated plan review",
       "source": "./",
       "strict": true,
       "skills": [
@@ -55,7 +55,8 @@
       ],
       "commands": [
         "./command/brainstorm.md",
-        "./command/planning.md"
+        "./command/planning.md",
+        "./command/write-plan.md"
       ]
     },
     {
