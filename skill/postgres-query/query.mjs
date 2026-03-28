@@ -164,11 +164,11 @@ if (!writable) {
     strippedQuery = strippedQuery.slice(end + 1).trim();
   }
   const upperQuery = strippedQuery.toUpperCase();
-  // Include WITH to block CTE-wrapped write statements (e.g. WITH x AS (DELETE ...) SELECT ...)
-  // Include GRANT/REVOKE (privilege escalation), COPY (OS command risk), DO/CALL (arbitrary execution)
+  // Block direct write/privileged statements
+  // GRANT/REVOKE (privilege escalation), COPY (OS command risk), DO/CALL (arbitrary execution)
   const writeOps = [
     'INSERT', 'UPDATE', 'DELETE', 'DROP', 'ALTER', 'TRUNCATE', 'CREATE',
-    'GRANT', 'REVOKE', 'COPY', 'DO', 'CALL', 'WITH',
+    'GRANT', 'REVOKE', 'COPY', 'DO', 'CALL',
   ];
   for (const op of writeOps) {
     if (upperQuery.startsWith(op + ' ') || upperQuery.startsWith(op + '\n') ||
@@ -177,6 +177,15 @@ if (!writable) {
       console.error('This requires explicit user permission as it modifies the database.');
       process.exit(1);
     }
+  }
+  // Block WITH only when the CTE body contains a write operation (data-modifying CTE).
+  // Read-only CTEs (WITH ranked AS (SELECT ...)) are allowed through.
+  const startsWithCTE = upperQuery.startsWith('WITH ') || upperQuery.startsWith('WITH\n') ||
+    upperQuery.startsWith('WITH\t');
+  if (startsWithCTE && /\b(INSERT|UPDATE|DELETE|MERGE)\b/.test(upperQuery)) {
+    console.error('Error: Data-modifying CTE detected (WITH ... INSERT/UPDATE/DELETE/MERGE). Use --writable flag to confirm.');
+    console.error('This requires explicit user permission as it modifies the database.');
+    process.exit(1);
   }
 }
 
