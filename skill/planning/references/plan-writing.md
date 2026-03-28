@@ -159,7 +159,7 @@ These are plan failures. Never write them:
 ## Allowed APIs Contract
 
 Every function, type, or import used in a code block must either:
-1. Exist in the codebase (cite file:line in the plan's Phase 4 "Allowed APIs" list), or
+1. Exist in the codebase (cite file:line), or
 2. Be defined in a prior task in this plan
 
 Never invent an API. If you need something that doesn't exist, Task 1 creates it, Task 2 uses it.

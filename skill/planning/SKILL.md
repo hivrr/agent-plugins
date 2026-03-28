@@ -82,7 +82,12 @@ Extract:
 - `scope_hint` — any explicit size or priority signal in the input
 - `plan_only` — true if `--plan-only` flag is present (skip issue triage and creation; only write the plan doc)
 
-If the input is an existing issue reference, fetch it: `gh issue view {number} --json title,body,labels`.
+If the input contains one or more issue references, fetch each one:
+```bash
+# For each number found in the input:
+gh issue view {number} --json title,body,labels
+```
+Aggregate the results — all fetched issues inform the topic, scope, and acceptance criteria.
 
 If `--plan-only` is set, display: `Mode: plan-only — will write plan doc without creating issues`
 
@@ -174,6 +179,8 @@ Display: `Complexity: {tier} — {one-line rationale}`
 ---
 
 ## Phase 7 — Draft the Breakdown
+
+**If `--plan-only` mode:** Skip the issue proposal. Only produce the file structure map (used in Phase 8). Jump directly to that section below.
 
 Propose a set of issues. For each issue:
 - **Title**: concise, action-oriented ("Add email verification token generation")
@@ -367,6 +374,8 @@ The reviewer outputs: `Status: Approved | Issues Found` with a list of specific 
 
 **If Issues Found:** fix them in the plan doc and re-save before continuing.
 
+**If the subagent fails or returns no output:** log a warning and continue — `Plan Review: skipped — subagent error`.
+
 Display: `Plan Review: {status} | {n} issues found and fixed`
 
 ---
@@ -398,7 +407,7 @@ Approve, adjust, or cancel?
 
 Do not proceed until the user explicitly approves or provides changes. If they provide changes, revise the draft and show it again. Do not create any issues until approved.
 
-**If `--plan-only` mode:** Skip this checkpoint after plan review — the plan doc is already saved. Ask: "Plan saved to {path}. Review it and run /work-issue when ready."
+**If `--plan-only` mode:** Skip this checkpoint after plan review — the plan doc is already saved. Display: `Plan saved to {path}. Review it and run /work-issue when ready.`
 
 ### Container mode
 

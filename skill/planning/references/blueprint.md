@@ -26,7 +26,7 @@ Do NOT use blueprint mode for:
 
 ## Step Count
 
-- Minimum: 3 steps (otherwise it's not complex enough for blueprint)
+- Fewer than 3 steps is a signal to reconsider the Complex classification — it may be Medium
 - Maximum: 12 steps (otherwise split into sub-projects)
 - Sweet spot: 4-8 steps
 
